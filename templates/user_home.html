@@ -2,72 +2,118 @@
 {% block title %} Home {% endblock title %}
 
 {% block body %}
-        <div>
-            {% if msg %}
-            <script>alert("{{ msg }}")</script>
-            {% endif %}
+<div>
+    {% if msg %}
+    <script>alert("Hi")</script>
+    <script>alert("{{ msg }}")</script>
+    {% endif %}
+</div>
+<div class="container profile-container">
+    <h1 class="center-text">My Profile</h1>
+    <form class="row g-3 " >
+        <div class="col-md-12">
+            <label for="name" class="form-label">Name</label>
+            {% set name = user_profile_data.first_name ~'-'~ user_profile_data.last_name%}
+            <input type="text" class="form-control" id="name" name="name" value={{name}} disabled>
         </div>
-      <div class="container">
-          <h2>Search center</h2>
-        <form action="/book_slot" method="POST">
-            <div class="mb-3">
-              <label for="pincode" class="form-label">Pin Code</label>
-              <input type="number" class="form-control" id="pincode"  name ="pincode">
-            </div>
-            
-            <!-- <div class="mb-3">
-              <label for="desc" class="form-label">Description</label>
-              <input type="text" class="form-control" id="description" name="description">
-            </div> -->
-            <button type="submit" class="btn btn-dark">Search</button>
-          </form>
-      </div>
-     
-      <div class="container my-4">
-        <h2>Availiable Centers</h2>
-          {% if centers|length ==0 %}
-          <div class="alert alert-warning" role="alert">
-            No record found... 
-          </div>
+        <div class="col-md-3">
+            <label for="mobile_no" class="form-label">Mobile No.</label>
+            <input type="number" class="form-control" id="mobile_no" value={{user_profile_data.mobile_no}} disabled>
+        </div>
+        <div class="col-md-3">
+            <label for="aadhar_no" class="form-label">Aadhar No.</label>
+            <input type="number" class="form-control" id="aadhar_no" value="{{user_profile_data.aadhar_no}}" disabled>
+        </div>
+        <div class="col-md-6">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" value={{user_profile_data.email}} disabled>
+        </div>
+        <div class="col-md-6">
+          <label for="vacc_status" class="form-label">Vaccine status</label>
+          {% if user_profile_data.dose==0 %}
+          {% set status = 'nonvanccinated' %}
+          {% set vaccine_type = 'NA' %}
+          {% set dose1 = 'NA' %}
+          {% set dose2 = 'NA' %} 
+
+          {% elif user_profile_data.dose==1 %}
+          {% set status = 'Partial' %}
+          {% set vaccine_type = "v1" %}
+          {% set dose1 = 'date of does 1' %}
+          {% set dose2 = 'NA' %}  
+
           {% else %}
-      <table class="table table-light table-striped">
-        <thead>
-            <tr>
-              <th scope="col">SN</th>
-              <th scope="col">Center Name</th>
-              <th scope="col">City</th>
-              <th scope="col">District</th>
-              <th scope="col">Pin code</th>
-              <th scope="col">Vaccine Type</th>
-              <th scope="col">Type</th>
-              <th scope="col">Availiable Slots</th>
-              <th scope="col">Action</th>
-              
-            </tr>
-          </thead>
-          <tbody>
-              {% for center in centers %}
-              <tr>
-                <th scope="row">{{loop.index}}</th>
-                <td>{{center.center_name}}</td>
-                <td>{{center.city}}</td>
-                <td>{{center.district}}</td>
-                <td>{{center.pin_code}}</td>
-                <td>{{center.vaccine_type}}</td>
-                <td>{{center.type}}</td>
-                <td>{{center.available_slots}}</td>
-                <td><a href="/book_slot/{{center.center_id}}" class="btn btn-light btn-sm">Book</a>
-                
-                
-              </tr>
-              {% endfor %}
-            
-            
-          </tbody>
-      </table>
+          {% set status = 'Complete' %}
+          {% set dose1 = 'date of does 1' %}
+          {% set dose2 = 'date of does 2' %}  
+          {% endif %}
+          <input type="text" class="form-control" id="vacc_status" value={{status}} disabled>
+        </div>
+        <div class="col-md-6">
+            <label for="vacc_name" class="form-label">Vaccine Name</label>
+            <input type="text" class="form-control" id="vacc_status" value="{{vaccine_type}}" disabled>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="dose1" class="form-label">Dose 1 date</label>
+            <input type="text" class="form-control" id="dose1" value="{{dose1}}" disabled>
+        </div>
+        <div class="col-md-3">
+            <label for="dose2" class="form-label">Dose 2 date</label>
+            <input type="text" class="form-control" id="dose2" value="{{dose2}}" disabled>
+        </div>
+        
+      </form>
+      <div class="col-12 mt-4">
+        {% if user_appo_data|length > 0 %}
+        {% set book_btn= 'disabled' %}
+        {% else %}
+        {% set book_btn=false %}
+        {% endif %}
+        <button class="btn btn-primary book-slot-btn" {{book_btn}}>
+            <a href="{{ url_for('book_slot') }}" >Book Slot</a>
+        </button>
+       </div>
+</div>
+
+<div class="container appointment-container">
+    <h3 class="center-text">Appointment</h3>
+    {% if user_appo_data|length == 0 %}
+    <div class="alert alert-warning" role="alert">
+        No Appointment data found... 
+      </div>
+    {% else %}
+    
+    <form class="row g-3 " >
+        <div class="col-md-3">
+            <label for="appo_id" class="form-label">Appointment Id</label>
+            <input type="text" class="form-control" id="appo_id" name="appo_id" value="{{user_appo_data.booking_id}}" disabled>
+        </div>
+        <div class="col-md-3">
+            <label for="appo_date" class="form-label">Appointment Schedule date</label>
+            <input type="text" class="form-control" id="appo_date" value="{{user_appo_data.appointment_date}}" disabled>
+        </div>
+        <div class="col-md-6">
+            <label for="center_name" class="form-label">Center name</label>
+            <input type="text" class="form-control" id="center_name" value="{{center_data.center_name}}" disabled>
+        </div>
+        <div class="col-md-3">
+            <label for="dose" class="form-label">Dose</label>
+            <input type="text" class="form-control" id="dose1" value="{{user_appo_data.booking_id}}" disabled>
+        </div>
+        <div class="col-md-3">
+            <label for="vaccine" class="form-label">Vaccine</label>
+            <input type="text" class="form-control" id="vaccine" value="{{center_data.vaccine_type}}" disabled>
+        </div>
+        
+        <div class="col-md-6">
+          <label for="center_address" class="form-label">Address</label>
+          {% set address = center_data.city~", "~center_data.district~", "~center_data.pin_code %}
+          <input type="text" class="form-control" id="center_address" value="{{address}}" disabled>
+        </div>
+      </form>
       {% endif %}
-    </div>
+
+</div>
 
 {% endblock body %} 
-     
-<!-- /delete/{{todo.id}} -->

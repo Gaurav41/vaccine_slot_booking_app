@@ -19,3 +19,20 @@
 .vertical-space{
     margin-top: 20px;
 }
+
+.center-text{
+    text-align: center;
+}
+
+.appointment-container h3{
+    margin: 50px;
+}
+.appointment-container{
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.book-slot-btn a{
+    color: white;
+    text-decoration: none;
+}

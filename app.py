@@ -1,9 +1,13 @@
 from flask import Flask,request,redirect,render_template,session
 from flask.helpers import url_for
 from flask.json import jsonify
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt 
+import datetime
+
+from marshmallow import fields
 
 from flask_login import LoginManager,UserMixin,login_user,login_required,logout_user,current_user
 
@@ -30,7 +34,8 @@ def login():
         if user and bcrypt.check_password_hash(user.password,password):
             login_user(user)
             print(f"User {current_user.first_name} logged in")
-            return redirect(url_for('book_slot'))
+            print(current_user.id)
+            return redirect(url_for('user_home'))
         else:
             return render_template('login.html',msg="Login failed")
     else:
@@ -73,10 +78,46 @@ def signup():
         return render_template('signup.html')
 
 
+def get_user_data(user_id):
+    result = User.query.get(user_id)
+    user = user_schema.dump(result)
+    # print("user")
+    # print(user)
+    return user
+
+def get_user_appo(user_id):
+    result = Bookings.query.filter_by(user_id=user_id).first()
+    appo_data = booking_schema.dump(result)
+    print("appo_data")
+    print(appo_data)
+    return appo_data
+
+
 def get_aval_center_by_pincode(pincode):
     result = Center.query.filter_by(pin_code=pincode)
     centers = centers_schema.dump(result)
     return centers
+
+def get_center(center_id):
+    result = Center.query.get(center_id)
+    center = center_schema.dump(result)
+    return center
+
+@app.route("/user_home")
+@login_required
+def user_home():
+    user_profile_data = get_user_data(current_user.id)
+    print("user_profile_data")
+    print(user_profile_data)
+
+    center_data={}
+    user_appo_data=get_user_appo(current_user.id)
+    if user_appo_data:
+        center_data = get_center(user_appo_data['center_id'])
+
+    msg = session.get("msg")
+    session["msg"]=None
+    return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,msg=msg)
 
 
 @app.route("/book_slot",methods=["GET","POST"])
@@ -87,21 +128,27 @@ def book_slot(msg=None):
         centers = get_aval_center_by_pincode(pincode)
         session["pincode"]= pincode
         # return jsonify(centers)
-        return render_template("user_home.html",centers=centers,msg=None)
+        return render_template("book_my_slot.html",centers=centers,msg=None)
     else:
-        return render_template("user_home.html")
+        return render_template("book_my_slot.html")
  
 @app.route("/book_slot/<int:center_id>",methods=["GET"])
 @login_required
 def book_my_slot(center_id):
     result = Center.query.filter_by(center_id=center_id).first()
     if  result.available_slots > 0:
+        
+        # center = get_center(center_id)
+        appoinment = Bookings(user_id=current_user.id,center_id=center_id,booking_date=datetime.datetime.utcnow(),appointment_date=datetime.datetime.utcnow())
+        db.session.add(appoinment)
+        db.session.commit()
         result.available_slots= int(result.available_slots)-1
         db.session.commit()
         pincode = session.get("pincode")
         centers = get_aval_center_by_pincode(int(pincode))
-        
-        return render_template("user_home.html",centers=centers,msg="Slot booked")
+        # return render_template("book_my_slot.html",centers=centers,msg="Slot booked")
+        session["msg"]="Slot booked"
+        return redirect(url_for('user_home'))
     else:
         return "oops....Slots full"
 
@@ -124,7 +171,7 @@ class User(db.Model,UserMixin):
     mobile_no=db.Column(db.Integer(), nullable=False)
     password=db.Column(db.String(100), nullable=False)
     dose = db.Column(db.Integer(), nullable=True)
-
+    #vaccine_type=db.Column(db.String(100),nullable=False)
     # does1_date=db.Column(db.String(20))
     # does2_date=db.Column(db.Integer(20))
 
@@ -150,7 +197,17 @@ class Center(db.Model):
     type=db.Column(db.String, nullable=False)
 
     # staff = db.relationship("Staff", backref="centers")
-    
+
+class Bookings(db.Model):
+    __tablename__= 'bookings'
+    booking_id=db.Column(db.Integer, primary_key=True)
+    user_id=db.Column(db.Integer,db.ForeignKey('users.id'))
+    center_id=db.Column(db.Integer,db.ForeignKey('centers.center_id'))
+    # vaccine_type=db.Column(db.String(100))
+    # type=db.Column(db.String,default='free')
+    booking_date=db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    appointment_date=db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
 class UserSchema(ma.Schema):
     class Meta:
         fields=("id","first_name","last_name","aadhar_no","birth_year","mobile_no","dose","email","password")
@@ -163,6 +220,9 @@ class CenterSchema(ma.Schema):
     class Meta:
         fields=("center_id","center_name","city","district","pin_code","capacity","allocated_slots","available_slots","vaccine_type","type")
     
+class BookingsSchema(ma.Schema):
+    class Meta:
+        fields=("booking_id","user_id","center_id","booking_date","appointment_date")
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -173,23 +233,37 @@ staffs_schema = StaffSchema(many=True)
 center_schema = CenterSchema()
 centers_schema = CenterSchema(many=True)
 
+booking_schema = BookingsSchema()
+
+
 @app.cli.command("db_seed")
 def db_seed():
     hashed_password = bcrypt.generate_password_hash("123").decode("UTF-8")
     user1=User(first_name='Gaurav',
                 last_name='Gaurav',
-                aadhar_no='Sun',
-                mobile_no=9767916589,
+                aadhar_no='4254',
+                mobile_no=9370251215,
                 birth_year=1999,
                 email="gaurav@gmail.com",
                 password=hashed_password,
                 dose=0  )
+    user2=User(first_name='abc',
+                last_name='xyz',
+                aadhar_no='4255',
+                mobile_no=9767916589,
+                birth_year=1999,
+                email="abc@gmail.com",
+                password=hashed_password,
+                dose=0  )
     db.session.add(user1)
+    db.session.add(user2)
     db.session.commit()
     print("User added")
     
-    staff_user=Staff(name="staff1",center_id=1)
-    db.session.add(staff_user)
+    staff1=Staff(name="staff1",center_id=1)
+    staff2=Staff(name="staff2",center_id=2)
+    db.session.add(staff1)
+    db.session.add(staff2)
     db.session.commit()
     print("staff added")
 
@@ -199,7 +273,7 @@ def db_seed():
             pin_code=411007,
             capacity=180,
             allocated_slots=180,
-            available_slots=180,
+            available_slots=120,
             vaccine_type="covaxine",
             type="free")
     center2= Center(center_name="C2",
@@ -211,10 +285,22 @@ def db_seed():
             available_slots=180,
             vaccine_type="covishield",
             type="free")
+
+    center3= Center(center_name="C3",
+            city="pune",
+            district="Pune",
+            pin_code=412208,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="paid")
+
     db.session.add(center1)
     db.session.add(center2)
+    db.session.add(center3)
     db.session.commit()
-    print("center1 added")
+    print("center added")
 
 if __name__ == "__main__":
     app.run(debug=True)
