@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %} Home {% endblock title %}
+
+{% block body %}
+        <div>
+            {% if msg %}
+            <script>alert("{{ msg }}")</script>
+            {% endif %}
+        </div>
+      <div class="container">
+          <h2>Search center</h2>
+        <form action="/book_slot" method="POST">
+            <div class="mb-3">
+              <label for="pincode" class="form-label">Pin Code</label>
+              <input type="number" class="form-control" id="pincode"  name ="pincode">
+            </div>
+            
+            <!-- <div class="mb-3">
+              <label for="desc" class="form-label">Description</label>
+              <input type="text" class="form-control" id="description" name="description">
+            </div> -->
+            <button type="submit" class="btn btn-dark">Search</button>
+          </form>
+      </div>
+     
+      <div class="container my-4">
+        <h2>Availiable Centers</h2>
+          {% if centers|length ==0 %}
+          <div class="alert alert-warning" role="alert">
+            No record found... 
+          </div>
+          {% else %}
+      <table class="table table-light table-striped">
+        <thead>
+            <tr>
+              <th scope="col">SN</th>
+              <th scope="col">Center Name</th>
+              <th scope="col">City</th>
+              <th scope="col">District</th>
+              <th scope="col">Pin code</th>
+              <th scope="col">Vaccine Type</th>
+              <th scope="col">Type</th>
+              <th scope="col">Availiable Slots</th>
+              <th scope="col">Action</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+              {% for center in centers %}
+              <tr>
+                <th scope="row">{{loop.index}}</th>
+                <td>{{center.center_name}}</td>
+                <td>{{center.city}}</td>
+                <td>{{center.district}}</td>
+                <td>{{center.pin_code}}</td>
+                <td>{{center.vaccine_type}}</td>
+                <td>{{center.type}}</td>
+                <td>{{center.available_slots}}</td>
+                <td><a href="/book_slot/{{center.center_id}}" class="btn btn-light btn-sm">Book</a>
+                
+                
+              </tr>
+              {% endfor %}
+            
+            
+          </tbody>
+      </table>
+      {% endif %}
+    </div>
+
+{% endblock body %} 
+     
+<!-- /delete/{{todo.id}} -->

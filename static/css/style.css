@@ -1,0 +1,21 @@
+.heading {
+    margin: 50px auto;
+    text-align: center;
+    color: rgb(0, 119, 255);
+}
+
+.login-form{
+    margin: auto 300px;
+    padding: 20px;
+    border: 1px solid rgb(35, 168, 230);
+}
+
+.horizontal-center{
+
+    text-align: center;
+
+}
+
+.vertical-space{
+    margin-top: 20px;
+}
