@@ -1,4 +1,5 @@
 import datetime
+from flask import session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt 
@@ -39,6 +40,7 @@ class Staff(db.Model,UserMixin):
         except:
             raise NotImplementedError("No id")
     
+
 class Center(db.Model):
     __tablename__= 'centers'
     center_id=db.Column(db.Integer, primary_key=True)
@@ -53,6 +55,7 @@ class Center(db.Model):
     type=db.Column(db.String, nullable=False)
 
     # staff = db.relationship("Staff", backref="centers")
+
 
 class Bookings(db.Model):
     __tablename__= 'bookings'
@@ -90,6 +93,7 @@ center_schema = CenterSchema()
 centers_schema = CenterSchema(many=True)
 
 booking_schema = BookingsSchema()
+bookings_schema = BookingsSchema(many=True)
 
 
 # @app.cli.command("db_seed")
@@ -159,14 +163,21 @@ def db_seed():
     print("center added")
 
 
-
-
 def get_user_data(user_id):
     result = User.query.get(user_id)
     user = user_schema.dump(result)
     # print("user")
     # print(user)
     return user
+
+def get_users_data(user_ids):
+    result = db.session.query(User).filter(User.id.in_(user_ids)).all()
+    # result = User.query.get(user_id)
+    users = users_schema.dump(result)
+    # print("user")
+    # print(user)
+    return users
+
 
 def get_staff_data(staff_id):
     result = Staff.query.get(staff_id)
@@ -175,12 +186,21 @@ def get_staff_data(staff_id):
     # print(user)
     return staff
 
+
 def get_user_appo(user_id):
     result = Bookings.query.filter_by(user_id=user_id).first()
     appo_data = booking_schema.dump(result)
     print("appo_data")
     print(appo_data)
     return appo_data
+
+
+def get_center_appo(center_id):
+    result = Bookings.query.filter_by(center_id=center_id)
+    center_appo_data = bookings_schema.dump(result)
+    print("center_appo_data")
+    print(center_appo_data)
+    return center_appo_data
 
 
 def get_aval_center_by_pincode(pincode):
@@ -192,3 +212,26 @@ def get_center(center_id):
     result = Center.query.get(center_id)
     center = center_schema.dump(result)
     return center
+
+
+def user_and_appo_data():
+    result = db.session.query(User,Bookings).join(Bookings).all()
+    data = []
+    for u,b in result:
+        dic = {
+        "birth_year":u.birth_year,
+        "user_id":u.id,
+        "mobile_no":u.mobile_no,
+        "last_name":u.last_name,
+        "dose":u.dose,
+        "email":u.email,
+        "first_name":u.first_name,
+        "aadhar_no":u.aadhar_no,
+        "booking_date":b.booking_date,
+        "center_id":b.center_id,
+        "appointment_date":b.appointment_date,
+        "booking_id":b.booking_id,
+        }
+        data.append(dic)
+        dic = {}
+    return data

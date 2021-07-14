@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %} Center Dashboard {% endblock title %}
+
+{% block body %}
+<div>
+    {% if msg %}
+    <script>alert("{{ msg }}")</script>
+    {% endif %}
+</div>
+<div class="container profile-container">
+    <h1 class="center-text">Dashboard</h1>
+    <form class="row g-3 " >
+        
+        <div class="col-md-4">
+            <label for="center_id" class="form-label">Center Id</label>
+            <input type="number" class="form-control" id="center_id" value={{center.center_id}} disabled>
+        </div>
+        <div class="col-md-8">
+            <label for="center_name" class="form-label">Center Name</label>
+            <input type="text" class="form-control" id="name" name="center_name" value={{center.center_name}} disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="vaccine_type" class="form-label">vaccine_type</label>
+            <input type="text" class="form-control" id="vaccine_type" value={{center.vaccine_type}} disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="type" class="form-label">type</label>
+            <input type="text" class="form-control" id="vaccine_type" value={{center.type}} disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="capacity" class="form-label">capacity</label>
+            <input type="number" class="form-control" id="capacity" value="{{center.capacity}}" disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="allocated_slots" class="form-label">allocated_slots</label>
+            <input type="number" class="form-control" id="allocated_slots" value="{{center.allocated_slots}}" disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="available_slots" class="form-label">available_slots</label>
+            <input type="number" class="form-control" id="available_slots" value="{{center.available_slots}}" disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="shout_count" class="form-label">Todays Shot Count</label>
+            <input type="number" class="form-control" id="shout_count" value="0" disabled>
+        </div>   
+    </form>
+
+    <div class="container my-4">
+        <h2 class="center-text">Appointments</h2>
+          {% if data|length ==0 %}
+          <div class="alert alert-warning" role="alert">
+            No record found... 
+          </div>
+          {% else %}
+      <table class="table table-light table-striped">
+        <thead>
+            <tr>
+              <th scope="col">SN</th>
+              <th scope="col">Appointment Id</th>
+              <th scope="col">User Id </th>
+              <th scope="col">Aadhar No</th>
+              <th scope="col">Name</th>
+              <th scope="col">Mobile No</th>
+              <th scope="col">booking_date</th>
+              <th scope="col">appointment_date</th>
+              <th scope="col">Action</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in data %}
+              <tr>
+                <th scope="row">{{loop.index}}</th>
+                <td>{{d.booking_id}}</td>
+                <td>{{d.user_id}}</td>
+                <td>{{d.aadhar_no}}</td>
+                <td>{{d.first_name}}</td>
+                <td>{{d.mobile_no}}</td>
+                <td>{{d.booking_date}}</td>
+                <td>{{d.appointment_date}}</td>
+                <td><a href="/shot_done/{{d.user_id}}" class="btn btn-light btn-sm">Done</a>     
+              </tr>
+              {% endfor %}
+            
+            
+          </tbody>
+      </table>
+      {% endif %}
+    </div>
+
+
+</div>
+
+{% endblock body %} 

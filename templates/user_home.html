@@ -64,7 +64,7 @@
         
       </form>
       <div class="col-12 mt-4">
-        {% if user_appo_data|length > 0 %}
+        {% if user_appo_data|length > 0 or user_profile_data.dose >= 2  %}
         {% set book_btn= 'disabled' %}
         {% else %}
         {% set book_btn=false %}
@@ -79,7 +79,7 @@
     <h3 class="center-text">Appointment</h3>
     {% if user_appo_data|length == 0 %}
     <div class="alert alert-warning" role="alert">
-        No Appointment data found... 
+        No Appointment Scheduled... 
       </div>
     {% else %}
     
@@ -98,7 +98,8 @@
         </div>
         <div class="col-md-3">
             <label for="dose" class="form-label">Dose</label>
-            <input type="text" class="form-control" id="dose1" value="{{user_appo_data.booking_id}}" disabled>
+            {% set dose = user_profile_data.dose+1 %}
+            <input type="text" class="form-control" id="dose1" value="{{dose}}" disabled>
         </div>
         <div class="col-md-3">
             <label for="vaccine" class="form-label">Vaccine</label>
