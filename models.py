@@ -62,10 +62,26 @@ class Bookings(db.Model):
     booking_id=db.Column(db.Integer, primary_key=True)
     user_id=db.Column(db.Integer,db.ForeignKey('users.id'))
     center_id=db.Column(db.Integer,db.ForeignKey('centers.center_id'))
-    # vaccine_type=db.Column(db.String(100))
-    # type=db.Column(db.String,default='free')
+    vaccine=db.Column(db.String(100),default='V1')
+    type=db.Column(db.String,default='free')
     booking_date=db.Column(db.DateTime, default=datetime.datetime.utcnow())
     appointment_date=db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
+
+class UserVaccination(db.Model):
+    __tablename__="user_vaccination"
+    id=db.Column(db.Integer,primary_key=True)
+    user_id=db.Column(db.Integer,db.ForeignKey('users.id'))
+    vaccine = db.Column(db.String(50),nullable=False)
+    d1_status=db.Column(db.String(50))
+    d1_date=db.Column(db.DateTime)
+    d1_center_id=db.Column(db.Integer,db.ForeignKey('centers.center_id'))
+    d1_staff_id=db.Column(db.Integer,db.ForeignKey('staff.staff_id'))
+    d2_status=db.Column(db.String(50))
+    d2_date=db.Column(db.DateTime)
+    d2_center_id=db.Column(db.Integer,db.ForeignKey('centers.center_id'))
+    d2_staff_id=db.Column(db.Integer,db.ForeignKey('staff.staff_id'))
+
 
 class UserSchema(ma.Schema):
     class Meta:
@@ -81,7 +97,13 @@ class CenterSchema(ma.Schema):
     
 class BookingsSchema(ma.Schema):
     class Meta:
-        fields=("booking_id","user_id","center_id","booking_date","appointment_date")
+        fields=("booking_id","user_id","vaccine","center_id","booking_date","appointment_date")
+
+class UserVaccinationSchema(ma.Schema):
+    class Meta:
+        fields=("user_id","d1_status","vaccine","d1_date","d1_center_id","d1_staff_id","d2_status","d2_date","d2_center_id","d2_staff_id")
+
+
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -94,6 +116,16 @@ centers_schema = CenterSchema(many=True)
 
 booking_schema = BookingsSchema()
 bookings_schema = BookingsSchema(many=True)
+
+user_vaccination_schema = UserVaccinationSchema()
+users_vaccination_schema = UserVaccinationSchema(many=True)
+
+
+def db_create():
+    db.drop_all()
+    db.create_all()
+    db_seed()
+    print("database created")
 
 
 # @app.cli.command("db_seed")
@@ -177,6 +209,11 @@ def get_users_data(user_ids):
     # print("user")
     # print(user)
     return users
+
+def get_user_vaccination_data(user_id):
+    result = UserVaccination.query.filter_by(user_id=user_id).first()
+    print(result)
+    return user_vaccination_schema.dump(result)
 
 
 def get_staff_data(staff_id):

@@ -31,21 +31,26 @@
           <label for="vacc_status" class="form-label">Vaccine status</label>
           {% if user_profile_data.dose==0 %}
           {% set status = 'nonvanccinated' %}
-          {% set vaccine_type = 'NA' %}
-          {% set dose1 = 'NA' %}
-          {% set dose2 = 'NA' %} 
-
           {% elif user_profile_data.dose==1 %}
           {% set status = 'Partial' %}
-          {% set vaccine_type = "v1" %}
-          {% set dose1 = 'date of does 1' %}
-          {% set dose2 = 'NA' %}  
-
           {% else %}
           {% set status = 'Complete' %}
-          {% set dose1 = 'date of does 1' %}
-          {% set dose2 = 'date of does 2' %}  
           {% endif %}
+
+          {% if user_vaccination_data %}
+            {% set dose1 = user_vaccination_data['d1_date'] %}
+            {% set dose2 = user_vaccination_data.d2_date %}         
+            {% set vaccine_type = user_vaccination_data.vaccine %}
+          
+          {% else %}
+            {% set vaccine_type = "NA" %} 
+            {% set dose1 = 'NA' %}
+            {% set dose2 = 'NA' %} 
+            {% set vaccine_type = "NA" %}
+         
+          {% endif %}
+          
+    
           <input type="text" class="form-control" id="vacc_status" value={{status}} disabled>
         </div>
         <div class="col-md-6">
@@ -69,7 +74,13 @@
         {% else %}
         {% set book_btn=false %}
         {% endif %}
-        <button class="btn btn-primary book-slot-btn" {{book_btn}}>
+
+        {% if user_vaccination_data.next_does_after %}
+        <div class="alert alert-warning" role="alert">
+             You are able to book slot after {{user_vaccination_data.next_does_after}}
+        </div>
+        {% endif %}
+        <button class="btn btn-primary book-slot-btn" {{user_profile_data.book_btn}}>
             <a href="{{ url_for('book_slot') }}" >Book Slot</a>
         </button>
        </div>

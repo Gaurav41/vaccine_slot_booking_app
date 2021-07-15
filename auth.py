@@ -11,12 +11,10 @@ login_manager.init_app(app)
 def load_user(user_id):
     user=session.get('user_cat')
     if user == "Staff":
-        print("***************************************************")
         return Staff.query.get(user_id)
     else:
         return User.query.get(user_id)
-    # staff_id = int(user_id)
-    # return Staff.query.get(staff_id)
+
 
 @app.route("/",methods=['GET','POST'])
 @app.route("/login",methods=['GET','POST'])
@@ -30,8 +28,8 @@ def login(msg=None):
         if user and bcrypt.check_password_hash(user.password,password):
             session["user_cat"]="User"
             login_user(user)
-            print(f"User {current_user.first_name} logged in")
-            print(current_user.id)
+            # print(f"User {current_user.first_name} logged in")
+            # print(current_user.id)
             return redirect(url_for('user_home'))
         else:
             return render_template('login.html',msg="Login failed")
@@ -49,8 +47,8 @@ def staff_login():
         if staff and bcrypt.check_password_hash(staff.password,password):
             session["user_cat"]="Staff"
             login_user(staff)
-            print(f"User {current_user.name} logged in")
-            print(current_user.staff_id)
+            # print(f"User {current_user.name} logged in")
+            # print(current_user.staff_id)
             return redirect(url_for('center_dashboard'))
         else:
             return render_template('staff_login.html',msg="Login failed")
@@ -59,6 +57,7 @@ def staff_login():
 
 
 @app.route("/logout")
+@login_required
 def logout():
     logout_user()
     print("user logged out")
