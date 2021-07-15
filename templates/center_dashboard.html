@@ -7,6 +7,11 @@
     <script>alert("{{ msg }}")</script>
     {% endif %}
 </div>
+    {% if errmsg %}
+        <div class="alert alert-warning center-text" role="alert">
+            {{errmsg}}
+        </div>
+    {% endif %}
 <div class="container profile-container">
     <h1 class="center-text">Dashboard</h1>
     <form class="row g-3 " >

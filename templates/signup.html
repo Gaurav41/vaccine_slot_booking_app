@@ -17,7 +17,11 @@
 </head>
 
 <body>
-
+    {% if msg %}
+    <div class="alert alert-warning center-text" role="alert">
+        {{msg}}
+    </div>
+   {% endif %}
     <div class="container">
         <div class="heading">
             <h2>Signup</h2>

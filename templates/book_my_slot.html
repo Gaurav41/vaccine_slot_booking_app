@@ -2,11 +2,18 @@
 {% block title %} book_my_slot {% endblock title %}
 
 {% block body %}
-        <div>
-            {% if msg %}
-            <script>alert("{{ msg }}")</script>
-            {% endif %}
-        </div>
+       
+      {% if msg %}
+      <div>
+        <script>alert("{{ msg }}")</script>
+      </div>
+      {% endif %}
+       
+      {% if errmsg %}
+          <div class="alert alert-warning center-text" role="alert">
+              {{errmsg}}
+          </div>
+      {% endif %}
       <div class="container">
           <h2>Search center</h2>
         <form action="/book_slot" method="POST">

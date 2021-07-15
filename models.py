@@ -16,7 +16,7 @@ class User(db.Model,UserMixin):
     id=db.Column(db.Integer, primary_key=True)
     first_name=db.Column(db.String(100), nullable=False)
     last_name=db.Column(db.String(100), nullable=False)
-    aadhar_no=db.Column(db.Integer(), nullable=False)
+    aadhar_no=db.Column(db.Integer(), nullable=False,unique=True)
     birth_year=db.Column(db.Integer(), nullable=False)
     email=db.Column(db.String(100),nullable=False)
     mobile_no=db.Column(db.Integer(), nullable=False)

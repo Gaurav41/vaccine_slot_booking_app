@@ -1,4 +1,4 @@
-from flask import session,request,render_template,redirect,url_for
+from flask import session,request,render_template,redirect,url_for,abort
 from flask_login import LoginManager,login_user,login_required,logout_user,current_user
 
 from models import User,Staff,user_schema,staff_schema,bcrypt
@@ -23,6 +23,8 @@ def login(msg=None):
     if request.method == 'POST':
         aadhar_no = request.form["aadhar_no"]
         password = request.form["password"]
+        if (not aadhar_no) or (not password) :
+            return render_template('login.html',msg="Enter all details")
         user = User.query.filter_by(aadhar_no=aadhar_no).first()
         print(user_schema.dump(user))
         if user and bcrypt.check_password_hash(user.password,password):
@@ -32,7 +34,7 @@ def login(msg=None):
             # print(current_user.id)
             return redirect(url_for('user_home'))
         else:
-            return render_template('login.html',msg="Login failed")
+            return render_template('login.html',msg="Login failed... Enter valid password")
     else:
         return render_template('login.html',msg=msg)
 
@@ -62,3 +64,5 @@ def logout():
     logout_user()
     print("user logged out")
     return redirect(url_for("login"))
+
+
