@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import session,request,render_template,redirect,url_for,abort
 from flask_login import LoginManager,login_user,login_required,logout_user,current_user
 
@@ -34,7 +35,7 @@ def login(msg=None):
             # print(current_user.id)
             return redirect(url_for('user_home'))
         else:
-            return render_template('login.html',msg="Login failed... Enter valid password")
+            return render_template('login.html',msg="Login failed... Enter valid credentials")
     else:
         return render_template('login.html',msg=msg)
 
@@ -66,3 +67,24 @@ def logout():
     return redirect(url_for("login"))
 
 
+def is_authorized_staff():
+
+    if not(session["user_cat"]=="Staff"):
+        return False
+        # return redirect(url_for("staff_login")),403 
+    else:
+        return True
+
+
+def is_authorized_user():
+
+    if not(session["user_cat"]=="User"):
+        return False
+        # return redirect(url_for("staff_login")),403 
+    else:
+        return True
+
+@login_manager.unauthorized_handler    
+def unauthorized_callback():   
+    # print("++++++-------------++++++++++++++--------------")         
+    return redirect(url_for('login'))

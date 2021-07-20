@@ -3,7 +3,7 @@ from app import app
 from flask_login import login_required,current_user
 from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination
 from models import datetime,db,bcrypt,get_center_appo,get_user_data,get_user_appo,get_staff_data,get_center,get_aval_center_by_pincode
-
+from auth import is_authorized_staff
 
 @app.route("/signup",methods=['GET','POST'])
 def signup():
@@ -81,13 +81,14 @@ def user_home():
         session["msg"]=None
         return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,user_vaccination_data=user_vaccination_data, msg=msg)
     except :
-        return redirect(url_for('user_home'))
+        return redirect(url_for('login'))
 
         
 
 @app.route("/staff_home")
 @login_required
 def staff_home():
+   
     try:
         staff_profile_data = get_staff_data(current_user.staff_id)
         # print("staff_profile_data")
@@ -106,18 +107,21 @@ def staff_home():
     # return render_template('user_home.html',user_profile_data=staff_profile_data,user_appo_data=user_appo_data,center_data=center_data,msg=msg)
 
 @app.route("/center_dashboard")
+@login_required
 def center_dashboard():
-    try:
-        center =get_center(current_user.center_id) 
-        data=user_and_appo_data()
-        errmsg=""
-        if session.get("errmsg"):
-            errmsg = session.get("errmsg")
-        return render_template('center_dashboard.html', center=center,data=data,errmsg=errmsg)
-    except:
-        print("***************************************")
-        return render_template('center_dashboard.html',errmsg="Somethin went wrong,try relogin")
-
+    if is_authorized_staff():
+        try:
+            center =get_center(current_user.center_id) 
+            data=user_and_appo_data()
+            errmsg=""
+            if session.get("errmsg"):
+                errmsg = session.get("errmsg")
+            return render_template('center_dashboard.html', center=center,data=data,errmsg=errmsg)
+        except:
+            print("***************************************")
+            return render_template('center_dashboard.html',errmsg="Somethin went wrong,try relogin")
+    else:
+        return redirect(url_for("staff_login")),403
 
 @app.route("/book_slot",methods=["GET","POST"])
 @login_required
@@ -233,15 +237,20 @@ def not_found(e):
     return render_template("404.html"),404
 
 @app.errorhandler(401)
-def not_found(e):
+def unauthorised(e):
     print(e)
     return render_template("login.html"),401
+
+@app.errorhandler(403)
+def forbidden(e):
+    print(e)
+    return render_template("login.html"),403
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     return 'bad request!', 400
 
-from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import HTTPException, abort
 
 @app.errorhandler(HTTPException)
 def handle_exception(e):

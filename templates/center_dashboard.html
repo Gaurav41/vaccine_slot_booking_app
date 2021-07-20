@@ -15,39 +15,56 @@
 <div class="container profile-container">
     <h1 class="center-text">Dashboard</h1>
     <form class="row g-3 " >
+        {% if center %}
+        {% set center_id=center.center_id %}
+        {% set center_name=center.center_name %}
+        {% set vaccine_type=center.vaccine_type %}
+        {% set type=center.type %}
+        {% set capacity=center.capacity%}
+        {% set allocated_slots=center.allocated_slots%}
+        {% set available_slots=center.available_slots%}
+        {% set allocated_slots=center.allocated_slots%}
         
+        {% else %}
+        {% set center_id=NA %}
+        {% set center_name=NA %}
+        {% set vaccine_type=NA %}
+        {% set type=NA %}
+        {% set capacity=NA %}
+        {% set allocated_slots= NA %}
+        {% set available_slots= NA %}
+        {% set allocated_slots= NA %}
+
+        {% endif %}
+
         <div class="col-md-4">
             <label for="center_id" class="form-label">Center Id</label>
-            <input type="number" class="form-control" id="center_id" value={{center.center_id}} disabled>
+            <input type="number" class="form-control" id="center_id" value={{center_id}} disabled>
         </div>
         <div class="col-md-8">
             <label for="center_name" class="form-label">Center Name</label>
-            <input type="text" class="form-control" id="name" name="center_name" value={{center.center_name}} disabled>
+            <input type="text" class="form-control" id="name" name="center_name" value={{center_name}} disabled>
         </div>
         <div class="col-md-4">
             <label for="vaccine_type" class="form-label">vaccine_type</label>
-            <input type="text" class="form-control" id="vaccine_type" value={{center.vaccine_type}} disabled>
+            <input type="text" class="form-control" id="vaccine_type" value={{vaccine_type}} disabled>
         </div>
         <div class="col-md-4">
             <label for="type" class="form-label">type</label>
-            <input type="text" class="form-control" id="vaccine_type" value={{center.type}} disabled>
+            <input type="text" class="form-control" id="vaccine_type" value={{type}} disabled>
         </div>
         <div class="col-md-4">
             <label for="capacity" class="form-label">capacity</label>
-            <input type="number" class="form-control" id="capacity" value="{{center.capacity}}" disabled>
+            <input type="number" class="form-control" id="capacity" value="{{capacity}}" disabled>
         </div>
         <div class="col-md-4">
             <label for="allocated_slots" class="form-label">allocated_slots</label>
-            <input type="number" class="form-control" id="allocated_slots" value="{{center.allocated_slots}}" disabled>
+            <input type="number" class="form-control" id="allocated_slots" value="{{allocated_slots}}" disabled>
         </div>
         <div class="col-md-4">
             <label for="available_slots" class="form-label">available_slots</label>
-            <input type="number" class="form-control" id="available_slots" value="{{center.available_slots}}" disabled>
+            <input type="number" class="form-control" id="available_slots" value="{{available_slots}}" disabled>
         </div>
-        <div class="col-md-4">
-            <label for="shout_count" class="form-label">Todays Shot Count</label>
-            <input type="number" class="form-control" id="shout_count" value="0" disabled>
-        </div>   
     </form>
 
     <div class="container my-4">
