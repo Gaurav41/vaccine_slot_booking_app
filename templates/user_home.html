@@ -80,7 +80,7 @@
         {% endif %}
         {% if user_vaccination_data.next_does_after %}
         <div class="alert alert-warning" role="alert">
-             You will able to book slot after {{user_vaccination_data.next_does_after}} days
+             You will be able to book slot after {{user_vaccination_data.next_does_after}} days
         </div>
         {% endif %}
         <button class="btn btn-primary book-slot-btn" {{user_profile_data.book_btn}}>
@@ -104,7 +104,7 @@
         </div>
         <div class="col-md-3">
             <label for="appo_date" class="form-label">Appointment Schedule date</label>
-            <input type="text" class="form-control" id="appo_date" value="{{user_appo_data.appointment_date}}" disabled>
+            <input type="text" class="form-control" id="appo_date" value="{{user_appo_data.appointment_date[0:10]}}" disabled>
         </div>
         <div class="col-md-6">
             <label for="center_name" class="form-label">Center name</label>
