@@ -117,7 +117,9 @@ def center_dashboard():
     if is_authorized_staff():
         try:
             center_data =get_center(current_user.center_id) 
-            user_appo_data=user_and_appo_data()
+            user_appo_data=user_and_appo_data(current_user.center_id)
+            print('user_appo_data')
+            print(user_appo_data)              
             errmsg=""
             if session.get("errmsg"):
                 errmsg = session.get("errmsg")

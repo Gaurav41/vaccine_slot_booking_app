@@ -251,10 +251,17 @@ def get_center(center_id):
     return center
 
 
-def user_and_appo_data():
-    result = db.session.query(User,Bookings).join(Bookings).all()
+def user_and_appo_data(center_id):
+    # result = db.session.query(User,Bookings).join(Bookings).all()
+    try:
+        result = db.session.query(User,Bookings).join(Bookings).filter(Bookings.center_id==center_id)
+    except Exception as e:
+        print(e)
+        return e
+    # print("result")
+    # print(bookings_schema.dump(result))
     data = []
-    for u,b in result:
+    for u,b in result: 
         dic = {
         "birth_year":u.birth_year,
         "user_id":u.id,
