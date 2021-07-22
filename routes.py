@@ -1,4 +1,4 @@
-from flask import request,redirect,render_template,url_for,session,jsonify
+from flask import request,redirect,render_template,url_for,session,jsonify,json,flash
 from app import app
 from flask_login import login_required,current_user
 from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination
@@ -18,11 +18,13 @@ def signup():
             birth_year = int(request.form["birth-year"])
             email = request.form["email"]
             if ( fname.strip()=="") or (lname.strip()=="") or (not mobile_no) or (not aadhar_no) or (password.strip()=="") or (birth_year> datetime.datetime.now().year) or (email.strip == ""):
-                msg = "Enter all field or enter valid details"
-                return render_template('signup.html',msg=msg)
+                # msg = "Enter all field or enter valid details"
+                flash("Enter all field or enter valid details","danger")
+                return render_template('signup.html')
 
             if  User.query.filter_by(aadhar_no=aadhar_no).first():
-                return render_template('signup.html',msg="User with same adhar no alredy exists")
+                flash("User with same adhar no alredy exists","danger")
+                return render_template('signup.html')
 
             hashed_password = bcrypt.generate_password_hash(password).decode("UTF-8")
             new_user=User(first_name=fname,
@@ -32,14 +34,15 @@ def signup():
                         birth_year=birth_year,
                         email=email,
                         password=hashed_password,
-                        dose=0  )
+                        dose=0)
             db.session.add(new_user)
             db.session.commit()
             print("User added")
-            return redirect(url_for("login",msg="Signup successful...please login"))
+            flash("Signup successful...please login","success")
+            return redirect(url_for("login"))
         except :
-            msg = "Something went wrong...try again"
-            render_template('signup.html',msg=msg)
+            flash("Something went wrong...try again","danger")
+            render_template('signup.html')
 
     else:    
         return render_template('signup.html')
@@ -78,9 +81,11 @@ def user_home():
             center_data = get_center(user_appo_data['center_id'])
 
         msg = session.get("msg")
-        session["msg"]=None
-        return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,user_vaccination_data=user_vaccination_data, msg=msg)
+        # session["msg"]=None
+        # flash(msg,"danger")
+        return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,user_vaccination_data=user_vaccination_data)
     except :
+        flash("Some error occured, Try again later...","danger")
         return redirect(url_for('login'))
 
         
@@ -111,16 +116,18 @@ def staff_home():
 def center_dashboard():
     if is_authorized_staff():
         try:
-            center =get_center(current_user.center_id) 
-            data=user_and_appo_data()
+            center_data =get_center(current_user.center_id) 
+            user_appo_data=user_and_appo_data()
             errmsg=""
             if session.get("errmsg"):
                 errmsg = session.get("errmsg")
-            return render_template('center_dashboard.html', center=center,data=data,errmsg=errmsg)
+                flash(errmsg,"danger")
+            return render_template('center_dashboard.html', center=center_data,data=user_appo_data)
         except:
-            print("***************************************")
-            return render_template('center_dashboard.html',errmsg="Somethin went wrong,try relogin")
+            flash("Some error occured, Try again later...","danger")
+            return render_template('staff_login.html')
     else:
+        flash("You are not a authorised staff to access this page","warning")
         return redirect(url_for("staff_login")),403
 
 @app.route("/book_slot",methods=["GET","POST"])
@@ -132,7 +139,8 @@ def book_slot(msg=None):
             centers = get_aval_center_by_pincode(pincode)
             session["pincode"]= pincode
             # return jsonify(centers)
-            return render_template("book_my_slot.html",centers=centers,msg=None)
+            flash("")
+            return render_template("book_my_slot.html",centers=centers)
         else:
             user_vaccination_data=get_user_vaccination_data(current_user.id)
             if user_vaccination_data:
@@ -140,17 +148,18 @@ def book_slot(msg=None):
                 d1_date = datetime.datetime.fromisoformat(d1_date)
                 day_diff = (datetime.datetime.now()-d1_date).days
                 if (day_diff) < 84 :
-                    session['msg']="You cannot book slot before 84 days"
+                    # session['msg']="You cannot book slot before 84 days"
+                    flash("You cannot book slot before 84 days","warning")
                     return redirect(url_for('user_home'))
             return render_template("book_my_slot.html")
     except:
-        return render_template("book_my_slot.html", errmsg="Try again")
+        flash("Some error occured, Try again later...","danger")
+        return render_template("book_my_slot.html")
  
 
 @app.route("/book_slot/<int:center_id>",methods=["GET"])
 @login_required
 def book_my_slot(center_id):
-
     result = Center.query.filter_by(center_id=center_id).first()
     try:
         if  result.available_slots > 0:
@@ -165,17 +174,21 @@ def book_my_slot(center_id):
             centers = get_aval_center_by_pincode(int(pincode))
             # return render_template("book_my_slot.html",centers=centers,msg="Slot booked")
             session["msg"]="Slot booked"
+            flash("Your Slot booked successfully","success")
             return redirect(url_for('user_home'))
         else:
-            session["msg"]="Oops....Slots full"
+            # session["msg"]="Oops....Slots full"
+            flash("Oops....Slots full","danger")
             return redirect(url_for('user_home'))
         
-    except AttributeError as e:
-        print(e)
-        session["msg"]="Something went wrong..try again"
-        return redirect(url_for('user_home'))
+    # except AttributeError as e:
+    #     print(e)
+    #     # session["msg"]="Something went wrong..try again"
+    #     flash("Some error occured, Try again later...","danger")
+    #     return redirect(url_for('user_home'))
     
     except :
+        flash("Some error occured, Try again later...","danger")
         return redirect(url_for('user_home'))
 
 
@@ -213,11 +226,14 @@ def shot_done(user_id):
 
         Bookings.query.filter_by(user_id=user_id).delete()
         db.session.commit()
+        flash(f"{result.first_name}\'s Vaccination done")
         return redirect(url_for("center_dashboard"))
+        
     except Exception as e:
         print(e)
-        errmsg = "Something went wrong while adding shot done"
-        session["errmsg"]=errmsg
+        errmsg = f"Something went wrong while updating vaccination shot done of user {result.first_name}"
+        # session["errmsg"]=errmsg
+        flash(errmsg)
         return redirect(url_for("center_dashboard"))
     
 @app.route("/test")

@@ -2,16 +2,7 @@
 {% block title %} Center Dashboard {% endblock title %}
 
 {% block body %}
-<div>
-    {% if msg %}
-    <script>alert("{{ msg }}")</script>
-    {% endif %}
-</div>
-    {% if errmsg %}
-        <div class="alert alert-warning center-text" role="alert">
-            {{errmsg}}
-        </div>
-    {% endif %}
+
 <div class="container profile-container">
     <h1 class="center-text">Dashboard</h1>
     <form class="row g-3 " >
@@ -102,15 +93,11 @@
                 <td>{{d.appointment_date}}</td>
                 <td><a href="/shot_done/{{d.user_id}}" class="btn btn-light btn-sm">Done</a>     
               </tr>
-              {% endfor %}
-            
-            
+              {% endfor %}           
           </tbody>
       </table>
       {% endif %}
     </div>
-
-
 </div>
 
 {% endblock body %} 

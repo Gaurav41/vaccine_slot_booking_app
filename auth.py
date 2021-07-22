@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import session,request,render_template,redirect,url_for,abort
+from flask.helpers import flash
 from flask_login import LoginManager,login_user,login_required,logout_user,current_user
 
 from models import User,Staff,user_schema,staff_schema,bcrypt
@@ -20,7 +21,7 @@ def load_user(user_id):
 @app.route("/",methods=['GET','POST'])
 @app.route("/login",methods=['GET','POST'])
 @app.route("/login/<string:msg>",methods=['GET','POST'])
-def login(msg=None):
+def login():
     if request.method == 'POST':
         aadhar_no = request.form["aadhar_no"]
         password = request.form["password"]
@@ -35,9 +36,10 @@ def login(msg=None):
             # print(current_user.id)
             return redirect(url_for('user_home'))
         else:
-            return render_template('login.html',msg="Login failed... Enter valid credentials")
+            flash("Login failed... Enter valid credentials","danger")
+            return render_template('login.html')
     else:
-        return render_template('login.html',msg=msg)
+        return render_template('login.html')
 
 
 @app.route("/staff_login",methods=['GET','POST'])
@@ -54,7 +56,8 @@ def staff_login():
             # print(current_user.staff_id)
             return redirect(url_for('center_dashboard'))
         else:
-            return render_template('staff_login.html',msg="Login failed")
+            flash("Login failed","danger")
+            return render_template('staff_login.html')
     else:
         return render_template('staff_login.html')
 
@@ -62,6 +65,7 @@ def staff_login():
 @app.route("/logout")
 @login_required
 def logout():
+    
     logout_user()
     print("user logged out")
     return redirect(url_for("login"))
