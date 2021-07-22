@@ -41,7 +41,7 @@
           {% endif %}
 
           {% if user_vaccination_data %}
-            {% set dose1 = user_vaccination_data['d1_date'] %}
+            {% set dose1 = user_vaccination_data.d1_date %}
             {% set dose2 = user_vaccination_data.d2_date %}         
             {% set vaccine_type = user_vaccination_data.vaccine %}
           
@@ -63,12 +63,12 @@
         
         <div class="col-md-3">
             <label for="dose1" class="form-label">Dose 1 date</label>
-            <input type="text" class="form-control" id="dose1" value="{{dose1}}" disabled>
+            <input type="text" class="form-control" id="dose1" value="{{dose1[0:10]}}" disabled>
         </div>
         {% if does2 %}
         <div class="col-md-3">
             <label for="dose2" class="form-label">Dose 2 date</label>
-            <input type="text" class="form-control" id="dose2" value="{{dose2}}" disabled>
+            <input type="text" class="form-control" id="dose2" value="{{dose2[0:10]}}" disabled>
         </div> 
         {% endif %}
       </form>

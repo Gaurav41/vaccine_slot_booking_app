@@ -228,7 +228,7 @@ def shot_done(user_id):
 
         Bookings.query.filter_by(user_id=user_id).delete()
         db.session.commit()
-        flash(f"{result.first_name}\'s Vaccination done")
+        flash(f"{result.first_name}\'s Vaccination done","success")
         return redirect(url_for("center_dashboard"))
         
     except Exception as e:

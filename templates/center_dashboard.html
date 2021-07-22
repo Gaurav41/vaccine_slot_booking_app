@@ -4,7 +4,7 @@
 {% block body %}
 
 <div class="container profile-container">
-    <h1 class="center-text">Dashboard</h1>
+    <h1 class="center-text heading">Center Dashboard</h1>
     <form class="row g-3 " >
         {% if center %}
         {% set center_id=center.center_id %}
@@ -59,7 +59,7 @@
     </form>
 
     <div class="container my-4">
-        <h2 class="center-text">Appointments</h2>
+        <h2 class="center-text heading">Appointments</h2>
           {% if data|length ==0 %}
           <div class="alert alert-warning" role="alert">
             No record found... 
@@ -70,7 +70,7 @@
             <tr>
               <th scope="col">SN</th>
               <th scope="col">Appointment Id</th>
-              <th scope="col">User Id </th>
+              <th scope="col">Beneficiary Id </th>
               <th scope="col">Aadhar No</th>
               <th scope="col">Name</th>
               <th scope="col">Mobile No</th>
@@ -90,8 +90,9 @@
                 <td>{{d.first_name}}</td>
                 <td>{{d.mobile_no}}</td>
                 <td>{{d.booking_date}}</td>
-                <td>{{d.appointment_date}}</td>
-                <td><a href="/shot_done/{{d.user_id}}" class="btn btn-light btn-sm">Done</a>     
+                {% set date = d.appointment_date %}
+                <td>{{date}}</td>
+                <td><a href="/shot_done/{{d.user_id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>     
               </tr>
               {% endfor %}           
           </tbody>
