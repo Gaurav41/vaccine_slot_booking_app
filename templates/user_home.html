@@ -6,11 +6,16 @@
 <div class="container profile-container">
     <h1 class="center-text">My Profile</h1>
     <form class="row g-3 " >
-        <div class="col-md-12">
+      <h3 class="horizontal-space">Beneficiary Details</h3>
+        <div class="col-md-8">
             <label for="name" class="form-label">Name</label>
             {% set name = user_profile_data.first_name ~'-'~ user_profile_data.last_name%}
             <input type="text" class="form-control" id="name" name="name" value={{name}} disabled>
         </div>
+        <div class="col-md-4">
+          <label for="name" class="form-label">Beneficiary Id</label>
+          <input type="text" class="form-control" id="name" name="name" value={{user_profile_data.id}} disabled>
+      </div>
         <div class="col-md-3">
             <label for="mobile_no" class="form-label">Mobile No.</label>
             <input type="number" class="form-control" id="mobile_no" value={{user_profile_data.mobile_no}} disabled>
@@ -23,6 +28,8 @@
           <label for="email" class="form-label">Email</label>
           <input type="email" class="form-control" id="email" value={{user_profile_data.email}} disabled>
         </div>
+
+        <h3 class="vertical-space">Vaccination Details</h3>
         <div class="col-md-6">
           <label for="vacc_status" class="form-label">Vaccine status</label>
           {% if user_profile_data.dose==0 %}
@@ -58,11 +65,12 @@
             <label for="dose1" class="form-label">Dose 1 date</label>
             <input type="text" class="form-control" id="dose1" value="{{dose1}}" disabled>
         </div>
+        {% if does2 %}
         <div class="col-md-3">
             <label for="dose2" class="form-label">Dose 2 date</label>
             <input type="text" class="form-control" id="dose2" value="{{dose2}}" disabled>
-        </div>
-        
+        </div> 
+        {% endif %}
       </form>
       <div class="col-12 mt-4">
         {% if user_appo_data|length > 0 or user_profile_data.dose >= 2  %}
@@ -70,10 +78,9 @@
         {% else %}
         {% set book_btn=false %}
         {% endif %}
-
         {% if user_vaccination_data.next_does_after %}
         <div class="alert alert-warning" role="alert">
-             You will able to book slot after {{user_vaccination_data.next_does_after}}
+             You will able to book slot after {{user_vaccination_data.next_does_after}} days
         </div>
         {% endif %}
         <button class="btn btn-primary book-slot-btn" {{user_profile_data.book_btn}}>
@@ -83,7 +90,7 @@
 </div>
 
 <div class="container appointment-container">
-    <h3 class="center-text">Appointment</h3>
+    <h3 class="center-text">Appointment Details</h3>
     {% if user_appo_data|length == 0 %}
     <div class="alert alert-warning" role="alert">
         No Appointment Scheduled... 
