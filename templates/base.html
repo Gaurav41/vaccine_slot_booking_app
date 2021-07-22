@@ -19,7 +19,7 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              {{current_user.is_authenticated}}
+              
               {% if current_user.is_authenticated %}
                   {% if session["user_cat"]=="Staff" %}
                     <li class="nav-item">
@@ -35,8 +35,15 @@
                   </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                  <a class="nav-link" href="{{ url_for('login') }}">Beneficiary Login</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('staff_login') }}">Staff Login</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('signup') }}">Signup</a>
+                </li>
+
               {% endif %}
 
               
