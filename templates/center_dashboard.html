@@ -63,22 +63,25 @@
         <h2 class="center-text heading">Appointments</h2>
         <div>
           <p>Filter:
-              {% if request.args.get('start_date') %}
-                  Start Date:
-                  <input type="text" name="start_date" id="start_date" placeholder="{{request.args.get('start_date')}}" required>
-                  End Date:
-                  <input type="text" name="end_date" id="end_date" placeholder="{{request.args.get('end_date')}}" required>
-                  <a href="{{url_for('center_dashboard')}}"><button class="btn btn-primary "> Cancle</button></a>
-                
-              {% else %}
+            {% if request.args.get('start_date') %}
+              {% set start_date=request.args.get('start_date') %}
+              {% set end_date=request.args.get('end_date') %}
+            {% endif %} 
               <form action="" method="GET">
                 Start Date:
-                <input type="date" name="start_date" id="start_date" required>
+                <input type="date" name="start_date" id="start_date" value="{{start_date}}" required>
                 End Date:
-                <input type="date" name="end_date" id="end_date" required>
+                <input type="date" name="end_date" id="end_date" value="{{end_date}}" required>
+                {% if request.args.get('start_date') %}
+              </form>
+                <a href="{{url_for('center_dashboard')}}"><button class="btn btn-primary "> Cancle</button></a>
+              
+                {% else %}
                 <button type="submit" class="btn btn-primary">Apply</button>
               </form>
-              {% endif %} 
+                {% endif %} 
+             
+              
              
           </p>
   
