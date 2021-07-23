@@ -66,6 +66,7 @@ class Bookings(db.Model):
     type=db.Column(db.String,default='free')
     booking_date=db.Column(db.DateTime, default=datetime.datetime.utcnow())
     appointment_date=db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    status=db.Column(db.String(50), default='Pending')
 
 
 class UserVaccination(db.Model):
@@ -133,33 +134,82 @@ def db_seed():
     hashed_password = bcrypt.generate_password_hash("123").decode("UTF-8")
     user1=User(first_name='Gaurav',
                 last_name='Pingale',
-                aadhar_no='4254',
+                aadhar_no='100',
                 mobile_no=9767916589,
                 birth_year=1999,
                 email="gaurav@gmail.com",
                 password=hashed_password,
                 dose=0  )
+    db.session.add(user1)
     user2=User(first_name='Shubham',
                 last_name='Hazare',
-                aadhar_no='4257',
+                aadhar_no='101',
                 mobile_no=7894561235,
                 birth_year=2000,
                 email="shubham@gmail.com",
                 password=hashed_password,
                 dose=0  )
-    db.session.add(user1)
     db.session.add(user2)
+    user2=User(first_name='Anant',
+                last_name='Deore',
+                aadhar_no='102',
+                mobile_no=7894561235,
+                birth_year=2000,
+                email="anant@gmail.com",
+                password=hashed_password,
+                dose=0  )
+    db.session.add(user2)
+    user2=User(first_name='Venky',
+                last_name='Parge',
+                aadhar_no='103',
+                mobile_no=7894561235,
+                birth_year=2000,
+                email="venky@gmail.com",
+                password=hashed_password,
+                dose=0  )
+    db.session.add(user2)
+    user2=User(first_name='Pradip',
+                last_name='Shinde',
+                aadhar_no='104',
+                mobile_no=7894561235,
+                birth_year=2000,
+                email="pradip@gmail.com",
+                password=hashed_password,
+                dose=0)
+    db.session.add(user2)
+    user2=User(first_name='Akshay',
+                last_name='Pingale',
+                aadhar_no='105',
+                mobile_no=7894561235,
+                birth_year=1993,
+                email="akshay@gmail.com",
+                password=hashed_password,
+                dose=0  )
+    db.session.add(user2)
+    user2=User(first_name='Amit',
+                last_name='Thombare',
+                aadhar_no='106',
+                mobile_no=7894561235,
+                birth_year=2000,
+                email="amit@gmail.com",
+                password=hashed_password,
+                dose=0  )
+
     db.session.commit()
     print("User added")
     
     staff1=Staff(name="staff1",center_id=1,password=hashed_password)
+    staff4=Staff(name="staff4",center_id=1,password=hashed_password)
     staff2=Staff(name="staff2",center_id=2,password=hashed_password)
+    staff3=Staff(name="staff3",center_id=3,password=hashed_password)
     db.session.add(staff1)
     db.session.add(staff2)
+    db.session.add(staff3)
+    db.session.add(staff4)
     db.session.commit()
     print("staff added")
 
-    center1= Center(center_name="C1",
+    center1= Center(center_name="Center C1",
             city="pune",
             district="Pune",
             pin_code=411007,
@@ -168,7 +218,7 @@ def db_seed():
             available_slots=120,
             vaccine_type="covaxine",
             type="free")
-    center2= Center(center_name="C2",
+    center2= Center(center_name="Center C2",
             city="pune",
             district="Pune",
             pin_code=411007,
@@ -178,7 +228,7 @@ def db_seed():
             vaccine_type="covishield",
             type="free")
 
-    center3= Center(center_name="C3",
+    center3= Center(center_name="Center C3",
             city="pune",
             district="Pune",
             pin_code=412208,
@@ -282,16 +332,32 @@ def user_and_appo_data(center_id):
 
 
 
-def user_and_appo_data_sroted(center_id,order=None):
+def user_and_appo_data_sroted(center_id,sort_by=None,order=None):
     # result = db.session.query(User,Bookings).join(Bookings).all()
     try:
-        if order == "desc":
-            result = db.session.query(User,Bookings).join(Bookings)\
-                    .filter(Bookings.center_id==center_id)\
-                    .order_by(Bookings.appointment_date.desc())
+        if sort_by == "appointment_date":
+            if order == "desc":
+                result = db.session.query(User,Bookings).join(Bookings)\
+                        .filter(Bookings.center_id==center_id)\
+                        .order_by(Bookings.appointment_date.desc())
+            elif order == "asc":
+                result = db.session.query(User,Bookings).join(Bookings)\
+                        .filter(Bookings.center_id==center_id)\
+                        .order_by(Bookings.appointment_date)
+        
+        elif sort_by == "status":
+            if order == "desc":
+                result = db.session.query(User,Bookings).join(Bookings)\
+                        .filter(Bookings.center_id==center_id)\
+                        .order_by(Bookings.status.desc())
+            elif order == "asc":
+                result = db.session.query(User,Bookings).join(Bookings)\
+                        .filter(Bookings.center_id==center_id)\
+                        .order_by(Bookings.status)
         else:
             result = db.session.query(User,Bookings).join(Bookings)\
-                    .filter(Bookings.center_id==center_id)
+                        .filter(Bookings.center_id==center_id)
+
         
     except Exception as e:
         print(e)

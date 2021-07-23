@@ -119,7 +119,8 @@ def center_dashboard():
             center_data =get_center(current_user.center_id) 
             # user_appo_data=user_and_appo_data(current_user.center_id)
             order = request.args.get("order")
-            user_appo_data=user_and_appo_data_sroted(current_user.center_id, order=order)
+            sort_by = request.args.get("sort_by")
+            user_appo_data=user_and_appo_data_sroted(current_user.center_id,sort_by=sort_by, order=order)
             logged_in_staff_data = get_staff_data(current_user.staff_id)
             # print("******************************************************")
             # print(logged_in_staff_data)
@@ -231,7 +232,8 @@ def shot_done(user_id):
             db.session.commit()
             # print("****user_vaccination data updated")
 
-        Bookings.query.filter_by(user_id=user_id).delete()
+        # Bookings.query.filter_by(user_id=user_id).delete()
+        user_booking.status='Done'
         db.session.commit()
         flash(f"{result.first_name}\'s Vaccination done","success")
         return redirect(url_for("center_dashboard"))
@@ -248,11 +250,11 @@ from models import user_and_appo_data_sroted
 
 @app.route("/test")
 def test():
-    # db_create()
+    db_create()
 
-    data = user_and_appo_data_sroted(1) 
-    print(data)
-    return(json.dumps(data))
+    # data = user_and_appo_data_sroted(1) 
+    # print(data)
+    # return(json.dumps(data))
 #    data=user_and_appo_data()
 #    print(data)
 #    return "joins"

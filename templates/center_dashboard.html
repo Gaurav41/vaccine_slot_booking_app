@@ -76,18 +76,35 @@
               <th scope="col">Name</th>
               <th scope="col">Mobile No</th>
               <th scope="col">appointment_date
-                {% if request.args.get('order') %}
+                {% if request.args.get('order') and request.args.get('sort_by')=='appointment_date' %}
                     {% if request.args.get('order')=='asc' %}
-                      <a href="{{ url_for('center_dashboard',order='desc') }}" >
+                      <a href="{{ url_for('center_dashboard',sort_by='appointment_date',order='desc') }}" >
                         <img class="sort-icon" src="{{ url_for('static',filename='images/d_arrow.png') }}" alt="">
                       </a>
                     {% else %}
-                    <a href="{{ url_for('center_dashboard',order='asc') }}" >
+                    <a href="{{ url_for('center_dashboard',sort_by='appointment_date',order='asc') }}" >
                       <img class="sort-icon" src="{{ url_for('static',filename='images/u_arrow.png') }}" alt="">
                     </a>   
                     {% endif %}
                 {% else %}
-                  <a href="{{ url_for('center_dashboard',order='desc') }}" >
+                  <a href="{{ url_for('center_dashboard',sort_by='appointment_date',order='desc') }}" >
+                    <img class="sort-icon" src="{{ url_for('static',filename='images/sort.png') }}" alt="">
+                  </a>
+                {% endif %}
+              </th>
+              <th scope="col">Status
+                {% if request.args.get('order') and request.args.get('sort_by')=='status' %}
+                    {% if request.args.get('order')=='asc' %}
+                      <a href="{{ url_for('center_dashboard',sort_by='status',order='desc') }}" >
+                        <img class="sort-icon" src="{{ url_for('static',filename='images/d_arrow.png') }}" alt="">
+                      </a>
+                    {% else %}
+                    <a href="{{ url_for('center_dashboard',sort_by='status',order='asc') }}" >
+                      <img class="sort-icon" src="{{ url_for('static',filename='images/u_arrow.png') }}" alt="">
+                    </a>   
+                    {% endif %}
+                {% else %}
+                  <a href="{{ url_for('center_dashboard',sort_by='status',order='desc') }}" >
                     <img class="sort-icon" src="{{ url_for('static',filename='images/sort.png') }}" alt="">
                   </a>
                 {% endif %}
@@ -107,6 +124,7 @@
                 <td>{{d.mobile_no}}</td>
                 {% set date = d.appointment_date %}
                 <td>{{date}}</td>
+                <td>Pending</td>
                 <td><a href="/shot_done/{{d.user_id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>     
               </tr>
               {% endfor %}           
