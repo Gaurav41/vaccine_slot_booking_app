@@ -332,31 +332,26 @@ def user_and_appo_data(center_id):
 
 
 
-def user_and_appo_data_sroted(center_id,sort_by=None,order=None):
+def user_and_appo_data_sroted(center_id,sort_by=None,order=None,start_date=None,end_date=None):
     # result = db.session.query(User,Bookings).join(Bookings).all()
     try:
+        result = db.session.query(User,Bookings).join(Bookings)\
+                        .filter(Bookings.center_id==center_id)
+        if start_date and start_date:
+            result=result.filter(Bookings.appointment_date.between(start_date,end_date))
         if sort_by == "appointment_date":
             if order == "desc":
-                result = db.session.query(User,Bookings).join(Bookings)\
-                        .filter(Bookings.center_id==center_id)\
-                        .order_by(Bookings.appointment_date.desc())
+                result=result.order_by(Bookings.appointment_date.desc())
             elif order == "asc":
-                result = db.session.query(User,Bookings).join(Bookings)\
-                        .filter(Bookings.center_id==center_id)\
-                        .order_by(Bookings.appointment_date)
+                result=result.order_by(Bookings.appointment_date)
         
         elif sort_by == "status":
             if order == "desc":
-                result = db.session.query(User,Bookings).join(Bookings)\
-                        .filter(Bookings.center_id==center_id)\
-                        .order_by(Bookings.status.desc())
+                result=result.order_by(Bookings.status.desc())
             elif order == "asc":
-                result = db.session.query(User,Bookings).join(Bookings)\
-                        .filter(Bookings.center_id==center_id)\
-                        .order_by(Bookings.status)
+                result=result.order_by(Bookings.status)
         else:
-            result = db.session.query(User,Bookings).join(Bookings)\
-                        .filter(Bookings.center_id==center_id)
+            pass
 
         
     except Exception as e:
@@ -379,7 +374,35 @@ def user_and_appo_data_sroted(center_id,sort_by=None,order=None):
         "center_id":b.center_id,
         "appointment_date":b.appointment_date,
         "booking_id":b.booking_id,
+        "status":b.status
         }
         data.append(dic)
         dic = {}
     return data
+
+# def models_test():
+#     result = db.session.query(User,Bookings).join(Bookings)\
+#                         .filter(Bookings.center_id==1)
+#     result=result.order_by(Bookings.booking_id.desc())
+#     result=result.filter(User.id==1)
+                        
+#     data = []
+#     for u,b in result: 
+#         dic = {
+#         "birth_year":u.birth_year,
+#         "user_id":u.id,
+#         "mobile_no":u.mobile_no,
+#         "last_name":u.last_name,
+#         "dose":u.dose,
+#         "email":u.email,
+#         "first_name":u.first_name,
+#         "aadhar_no":u.aadhar_no,
+#         "booking_date":b.booking_date,
+#         "center_id":b.center_id,
+#         "appointment_date":b.appointment_date,
+#         "booking_id":b.booking_id,
+#         "status":b.status
+#         }
+#         data.append(dic)
+#         dic = {}
+#     return data

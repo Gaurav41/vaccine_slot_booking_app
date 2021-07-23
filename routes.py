@@ -1,8 +1,10 @@
 from flask import request,redirect,render_template,url_for,session,jsonify,json,flash
+from flask_sqlalchemy import model
+import datetime
 from app import app
 from flask_login import login_required,current_user
 from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination
-from models import datetime,db,bcrypt,get_center_appo,get_user_data,get_user_appo,get_staff_data,get_center,get_aval_center_by_pincode
+from models import db,bcrypt,get_center_appo,get_user_data,get_user_appo,get_staff_data,get_center,get_aval_center_by_pincode
 from auth import is_authorized_staff
 
 @app.route("/signup",methods=['GET','POST'])
@@ -120,7 +122,9 @@ def center_dashboard():
             # user_appo_data=user_and_appo_data(current_user.center_id)
             order = request.args.get("order")
             sort_by = request.args.get("sort_by")
-            user_appo_data=user_and_appo_data_sroted(current_user.center_id,sort_by=sort_by, order=order)
+            start_date = request.args.get("start_date")
+            end_date = request.args.get("end_date")
+            user_appo_data=user_and_appo_data_sroted(current_user.center_id,sort_by=sort_by, order=order,start_date=start_date,end_date=end_date)
             logged_in_staff_data = get_staff_data(current_user.staff_id)
             # print("******************************************************")
             # print(logged_in_staff_data)
@@ -246,12 +250,12 @@ def shot_done(user_id):
         return redirect(url_for("center_dashboard"))
 
 
-from models import user_and_appo_data_sroted
+from models import user_and_appo_data_sroted,models_test
 
 @app.route("/test")
 def test():
-    db_create()
-
+    # db_create()
+    return json.dumps(models_test())
     # data = user_and_appo_data_sroted(1) 
     # print(data)
     # return(json.dumps(data))

@@ -61,11 +61,34 @@
 
     <div class="container my-4">
         <h2 class="center-text heading">Appointments</h2>
+        <div>
+          <p>Filter:
+              {% if request.args.get('start_date') %}
+                  Start Date:
+                  <input type="text" name="start_date" id="start_date" placeholder="{{request.args.get('start_date')}}" required>
+                  End Date:
+                  <input type="text" name="end_date" id="end_date" placeholder="{{request.args.get('end_date')}}" required>
+                  <a href="{{url_for('center_dashboard')}}"><button class="btn btn-primary "> Cancle</button></a>
+                
+              {% else %}
+              <form action="" method="GET">
+                Start Date:
+                <input type="date" name="start_date" id="start_date" required>
+                End Date:
+                <input type="date" name="end_date" id="end_date" required>
+                <button type="submit" class="btn btn-primary">Apply</button>
+              </form>
+              {% endif %} 
+             
+          </p>
+  
+        </div>
           {% if data|length ==0 %}
           <div class="alert alert-warning" role="alert">
             No Appointments... 
           </div>
           {% else %}
+      
       <table class="table table-light table-striped">
         <thead>
             <tr>
@@ -124,8 +147,11 @@
                 <td>{{d.mobile_no}}</td>
                 {% set date = d.appointment_date %}
                 <td>{{date}}</td>
-                <td>Pending</td>
-                <td><a href="/shot_done/{{d.user_id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>     
+                <td>{{d.status}}</td>
+                <td>
+                  {% if not d.status == "Done" %}
+                  <a href="/shot_done/{{d.user_id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>
+                  {% endif  %}     
               </tr>
               {% endfor %}           
           </tbody>
