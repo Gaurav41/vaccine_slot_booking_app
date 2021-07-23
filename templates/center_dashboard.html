@@ -6,6 +6,7 @@
 <div class="container profile-container">
     <h1 class="center-text heading">Center Dashboard</h1>
     <form class="row g-3 " >
+
         {% if center %}
         {% set center_id=center.center_id %}
         {% set center_name=center.center_name %}
@@ -74,8 +75,23 @@
               <th scope="col">Aadhar No</th>
               <th scope="col">Name</th>
               <th scope="col">Mobile No</th>
-              <th scope="col">booking_date</th>
-              <th scope="col">appointment_date</th>
+              <th scope="col">appointment_date
+                {% if request.args.get('order') %}
+                    {% if request.args.get('order')=='asc' %}
+                      <a href="{{ url_for('center_dashboard',order='desc') }}" >
+                        <img class="sort-icon" src="{{ url_for('static',filename='images/d_arrow.png') }}" alt="">
+                      </a>
+                    {% else %}
+                    <a href="{{ url_for('center_dashboard',order='asc') }}" >
+                      <img class="sort-icon" src="{{ url_for('static',filename='images/u_arrow.png') }}" alt="">
+                    </a>   
+                    {% endif %}
+                {% else %}
+                  <a href="{{ url_for('center_dashboard',order='desc') }}" >
+                    <img class="sort-icon" src="{{ url_for('static',filename='images/sort.png') }}" alt="">
+                  </a>
+                {% endif %}
+              </th>
               <th scope="col">Action</th>
               
             </tr>
@@ -89,7 +105,6 @@
                 <td>{{d.aadhar_no}}</td>
                 <td>{{d.first_name}}</td>
                 <td>{{d.mobile_no}}</td>
-                <td>{{d.booking_date}}</td>
                 {% set date = d.appointment_date %}
                 <td>{{date}}</td>
                 <td><a href="/shot_done/{{d.user_id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>     

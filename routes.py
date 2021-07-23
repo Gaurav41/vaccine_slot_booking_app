@@ -117,14 +117,19 @@ def center_dashboard():
     if is_authorized_staff():
         try:
             center_data =get_center(current_user.center_id) 
-            user_appo_data=user_and_appo_data(current_user.center_id)
-            print('user_appo_data')
-            print(user_appo_data)              
+            # user_appo_data=user_and_appo_data(current_user.center_id)
+            order = request.args.get("order")
+            user_appo_data=user_and_appo_data_sroted(current_user.center_id, order=order)
+            logged_in_staff_data = get_staff_data(current_user.staff_id)
+            # print("******************************************************")
+            # print(logged_in_staff_data)
+            # print('user_appo_data')
+            # print(user_appo_data)              
             errmsg=""
             if session.get("errmsg"):
                 errmsg = session.get("errmsg")
                 flash(errmsg,"danger")
-            return render_template('center_dashboard.html', center=center_data,data=user_appo_data)
+            return render_template('center_dashboard.html', center=center_data,data=user_appo_data,logged_in_staff_data=logged_in_staff_data)
         except:
             flash("Some error occured, Try again later...","danger")
             return render_template('staff_login.html')
@@ -237,12 +242,17 @@ def shot_done(user_id):
         # session["errmsg"]=errmsg
         flash(errmsg)
         return redirect(url_for("center_dashboard"))
-    
+
+
+from models import user_and_appo_data_sroted
+
 @app.route("/test")
-@login_required
 def test():
     # db_create()
-    return("done")
+
+    data = user_and_appo_data_sroted(1) 
+    print(data)
+    return(json.dumps(data))
 #    data=user_and_appo_data()
 #    print(data)
 #    return "joins"

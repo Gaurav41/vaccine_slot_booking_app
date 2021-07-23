@@ -279,3 +279,41 @@ def user_and_appo_data(center_id):
         data.append(dic)
         dic = {}
     return data
+
+
+
+def user_and_appo_data_sroted(center_id,order=None):
+    # result = db.session.query(User,Bookings).join(Bookings).all()
+    try:
+        if order == "desc":
+            result = db.session.query(User,Bookings).join(Bookings)\
+                    .filter(Bookings.center_id==center_id)\
+                    .order_by(Bookings.appointment_date.desc())
+        else:
+            result = db.session.query(User,Bookings).join(Bookings)\
+                    .filter(Bookings.center_id==center_id)
+        
+    except Exception as e:
+        print(e)
+        return e
+    # print("result")
+    # print(bookings_schema.dump(result))
+    data = []
+    for u,b in result: 
+        dic = {
+        "birth_year":u.birth_year,
+        "user_id":u.id,
+        "mobile_no":u.mobile_no,
+        "last_name":u.last_name,
+        "dose":u.dose,
+        "email":u.email,
+        "first_name":u.first_name,
+        "aadhar_no":u.aadhar_no,
+        "booking_date":b.booking_date,
+        "center_id":b.center_id,
+        "appointment_date":b.appointment_date,
+        "booking_id":b.booking_id,
+        }
+        data.append(dic)
+        dic = {}
+    return data
