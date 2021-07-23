@@ -3,7 +3,7 @@ from flask_sqlalchemy import model
 import datetime
 from app import app
 from flask_login import login_required,current_user
-from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination
+from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination,user_and_appo_data_sroted
 from models import db,bcrypt,get_center_appo,get_user_data,get_user_appo,get_staff_data,get_center,get_aval_center_by_pincode
 from auth import is_authorized_staff
 
@@ -135,7 +135,8 @@ def center_dashboard():
                 errmsg = session.get("errmsg")
                 flash(errmsg,"danger")
             return render_template('center_dashboard.html', center=center_data,data=user_appo_data,logged_in_staff_data=logged_in_staff_data)
-        except:
+        except Exception as e:
+            print(e)
             flash("Some error occured, Try again later...","danger")
             return render_template('staff_login.html')
     else:
@@ -250,18 +251,19 @@ def shot_done(user_id):
         return redirect(url_for("center_dashboard"))
 
 
-from models import user_and_appo_data_sroted,models_test
+# from models import user_and_appo_data_sroted,models_test
 
 @app.route("/test")
 def test():
     # db_create()
-    return json.dumps(models_test())
+    # return json.dumps(models_test())
     # data = user_and_appo_data_sroted(1) 
     # print(data)
     # return(json.dumps(data))
 #    data=user_and_appo_data()
 #    print(data)
 #    return "joins"
+    pass
 
 import werkzeug
 
