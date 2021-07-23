@@ -62,12 +62,39 @@
     <div class="container my-4">
         <h2 class="center-text heading">Appointments</h2>
         <div>
-          <p>Filter:
+
+          {% if request.args.get('show') %}
+            {% set show_data=request.args.get('show') %}
+            {% if show_data=='done' %}
+              {% set is_done_selected='selected' %}
+            {% elif show_data=='pending'%}
+              {% set is_pending_selected='selected' %}
+            {% else %}
+            {% set is_all_selected='selected' %}
+            {% endif %}
+          {% else %}
+          {% set show_data='all' %}
+          {% endif %}
+        
+        <form action="">
+          <label for="show">Show:</label>
+          <select name="show" id="show">
+            <option value="all" {{is_all_selected}}>All</option>
+            <option value="pending" {{is_pending_selected}}>Only Pending</option>
+            <option value="done" {{is_done_selected}}>Only Done</option>
+          </select>
+          <input type="submit" value="Show">
+        </form>
+          
+
+        </div>
+        <div>
             {% if request.args.get('start_date') %}
               {% set start_date=request.args.get('start_date') %}
               {% set end_date=request.args.get('end_date') %}
             {% endif %} 
               <form action="" method="GET">
+                Filter: 
                 Start Date:
                 <input type="date" name="start_date" id="start_date" value="{{start_date}}" required>
                 End Date:
@@ -77,14 +104,11 @@
                 <a href="{{url_for('center_dashboard')}}"><button class="btn btn-primary "> Cancle</button></a>
               
                 {% else %}
+                <input type="hidden" value="{{show_data}}" name="show">
                 <button type="submit" class="btn btn-primary">Apply</button>
               </form>
                 {% endif %} 
-             
-              
-             
-          </p>
-  
+
         </div>
           {% if data|length ==0 %}
           <div class="alert alert-warning" role="alert">
@@ -104,16 +128,16 @@
               <th scope="col">appointment_date
                 {% if request.args.get('order') and request.args.get('sort_by')=='appointment_date' %}
                     {% if request.args.get('order')=='asc' %}
-                      <a href="{{ url_for('center_dashboard',sort_by='appointment_date',order='desc') }}" >
+                      <a href="{{ url_for('center_dashboard',show=show_data,sort_by='appointment_date',order='desc') }}" >
                         <img class="sort-icon" src="{{ url_for('static',filename='images/d_arrow.png') }}" alt="">
                       </a>
                     {% else %}
-                    <a href="{{ url_for('center_dashboard',sort_by='appointment_date',order='asc') }}" >
+                    <a href="{{ url_for('center_dashboard',show=show_data,sort_by='appointment_date',order='asc') }}" >
                       <img class="sort-icon" src="{{ url_for('static',filename='images/u_arrow.png') }}" alt="">
                     </a>   
                     {% endif %}
                 {% else %}
-                  <a href="{{ url_for('center_dashboard',sort_by='appointment_date',order='desc') }}" >
+                  <a href="{{ url_for('center_dashboard',show=show_data,sort_by='appointment_date',order='desc') }}" >
                     <img class="sort-icon" src="{{ url_for('static',filename='images/sort.png') }}" alt="">
                   </a>
                 {% endif %}
@@ -121,16 +145,16 @@
               <th scope="col">Status
                 {% if request.args.get('order') and request.args.get('sort_by')=='status' %}
                     {% if request.args.get('order')=='asc' %}
-                      <a href="{{ url_for('center_dashboard',sort_by='status',order='desc') }}" >
+                      <a href="{{ url_for('center_dashboard',show=show_data,sort_by='status',order='desc') }}" >
                         <img class="sort-icon" src="{{ url_for('static',filename='images/d_arrow.png') }}" alt="">
                       </a>
                     {% else %}
-                    <a href="{{ url_for('center_dashboard',sort_by='status',order='asc') }}" >
+                    <a href="{{ url_for('center_dashboard',show=show_data,sort_by='status',order='asc') }}" >
                       <img class="sort-icon" src="{{ url_for('static',filename='images/u_arrow.png') }}" alt="">
                     </a>   
                     {% endif %}
                 {% else %}
-                  <a href="{{ url_for('center_dashboard',sort_by='status',order='desc') }}" >
+                  <a href="{{ url_for('center_dashboard',show=show_data,sort_by='status',order='desc') }}" >
                     <img class="sort-icon" src="{{ url_for('static',filename='images/sort.png') }}" alt="">
                   </a>
                 {% endif %}

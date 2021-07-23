@@ -120,11 +120,12 @@ def center_dashboard():
         try:
             center_data =get_center(current_user.center_id) 
             # user_appo_data=user_and_appo_data(current_user.center_id)
+            show_only = request.args.get("show")
             order = request.args.get("order")
             sort_by = request.args.get("sort_by")
             start_date = request.args.get("start_date")
             end_date = request.args.get("end_date")
-            user_appo_data=user_and_appo_data_sroted(current_user.center_id,sort_by=sort_by, order=order,start_date=start_date,end_date=end_date)
+            user_appo_data=user_and_appo_data_sroted(current_user.center_id,show_only=show_only,sort_by=sort_by, order=order,start_date=start_date,end_date=end_date)
             logged_in_staff_data = get_staff_data(current_user.staff_id)
             # print("******************************************************")
             # print(logged_in_staff_data)

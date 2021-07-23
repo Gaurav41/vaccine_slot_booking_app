@@ -332,11 +332,18 @@ def user_and_appo_data(center_id):
 
 
 
-def user_and_appo_data_sroted(center_id,sort_by=None,order=None,start_date=None,end_date=None):
+def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,start_date=None,end_date=None):
     # result = db.session.query(User,Bookings).join(Bookings).all()
     try:
         result = db.session.query(User,Bookings).join(Bookings)\
                         .filter(Bookings.center_id==center_id)
+        if show_only :
+            if show_only=='done' :
+                result=result.filter(Bookings.status=='Done')
+            
+            if show_only=='pending' :
+                result=result.filter(Bookings.status=='Pending')
+        
         if start_date and start_date:
             result=result.filter(Bookings.appointment_date.between(start_date,end_date))
         if sort_by == "appointment_date":
