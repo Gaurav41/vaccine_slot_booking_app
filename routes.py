@@ -61,6 +61,8 @@ def user_home():
 
         center_data={}
         user_appo_data=get_user_appo(current_user.id)
+        print("user_appo_data")
+        print(user_appo_data)
         user_vaccination_data=get_user_vaccination_data(current_user.id)
         # print("--------------------------user_vaccination_data---------------")
         # print(user_vaccination_data)
@@ -81,13 +83,14 @@ def user_home():
         user_profile_data['book_btn']=book_btn
 
         if user_appo_data:
-            center_data = get_center(user_appo_data['center_id'])
+            center_data = get_center(user_appo_data.center_id)
 
         msg = session.get("msg")
         # session["msg"]=None
         # flash(msg,"danger")
         return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,user_vaccination_data=user_vaccination_data)
     except :
+        traceback.print_exc()
         flash("Some error occured while loading user home, Try again later...","danger")
         return redirect(url_for('login'))
 

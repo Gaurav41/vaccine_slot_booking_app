@@ -176,7 +176,8 @@
                 <td>{{d.first_name}}</td>
                 <td>{{d.mobile_no}}</td>
                 {% set date = d.appointment_date %}
-                <td>{{date}}</td>
+                
+                <td>{{date.strftime("%d %B %Y")}}</td>
                 <td>{{d.status}}</td>
                 <td>
                   {% if not d.status == "Done" %}

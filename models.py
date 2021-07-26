@@ -3,6 +3,7 @@ import traceback
 
 from flask import session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import cast, Date
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
@@ -105,6 +106,7 @@ class BookingsSchema(ma.Schema):
 class UserVaccinationSchema(ma.Schema):
     class Meta:
         fields=("user_id","d1_status","vaccine","d1_date","d1_center_id","d1_staff_id","d2_status","d2_date","d2_center_id","d2_staff_id")
+
 
 class UserBookingsSchema(ma.Schema):
     class Meta:
@@ -254,8 +256,10 @@ def db_seed():
 def get_user_data(user_id):
     result = User.query.get(user_id)
     user = user_schema.dump(result)
-    # print("user")
-    # print(user)
+    print("***********************************************************************")
+    print(result)
+    print("***********************************************************************")
+    print(user)
     return user
 
 def get_users_data(user_ids):
@@ -282,10 +286,10 @@ def get_staff_data(staff_id):
 
 def get_user_appo(user_id):
     result = Bookings.query.filter_by(user_id=user_id).first()
-    appo_data = booking_schema.dump(result)
-    print("appo_data")
-    print(appo_data)
-    return appo_data
+    # appo_data = booking_schema.dump(result)
+    # print("appo_data")
+    # print(appo_data)
+    return result
 
 
 def get_center_appo(center_id):

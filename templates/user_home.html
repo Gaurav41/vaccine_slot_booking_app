@@ -73,7 +73,7 @@
         {% endif %}
       </form>
       <div class="col-12 mt-4">
-        {% if user_appo_data|length > 0 or user_profile_data.dose >= 2  %}
+        {% if user_appo_data or user_profile_data.dose >= 2  %}
         {% set book_btn= 'disabled' %}
         {% else %}
         {% set book_btn=false %}
@@ -91,7 +91,7 @@
 
 <div class="container appointment-container">
     <h3 class="center-text heading">Appointment Details</h3>
-    {% if user_appo_data|length == 0 %}
+    {% if not user_appo_data %}
     <div class="alert alert-warning" role="alert">
         No Appointment Scheduled... 
       </div>
@@ -104,7 +104,8 @@
         </div>
         <div class="col-md-3">
             <label for="appo_date" class="form-label">Appointment Schedule date</label>
-            <input type="text" class="form-control" id="appo_date" value="{{user_appo_data.appointment_date[0:10]}}" disabled>
+            {% set date=user_appo_data.appointment_date.strftime('%d %B %Y') %}
+            <input type="text" class="form-control" id="appo_date" value="{{date}}" disabled>
         </div>
         <div class="col-md-6">
             <label for="center_name" class="form-label">Center name</label>
