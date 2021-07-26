@@ -16,7 +16,7 @@
       {% endif %}
       <div class="container">
           <h2>Search center</h2>
-        <form action="/book_slot" method="POST">
+        <form action="/book_slot" method="GET">
             <div class="mb-3">
               <label for="pincode" class="form-label">Pin Code</label>
               <input type="number" class="form-control" id="pincode"  name ="pincode">
@@ -27,11 +27,11 @@
      
       <div class="container my-4">
         <h2>Available Centers</h2>
-          {% if centers|length ==0 %}
+        {% if not centers %}
           <div class="alert alert-warning" role="alert">
             No record found... 
           </div>
-          {% else %}
+        {% else %}
       <table class="table table-light table-striped">
         <thead>
             <tr>
@@ -48,7 +48,7 @@
             </tr>
           </thead>
           <tbody>
-              {% for center in centers %}
+              {% for center in centers.items %}
               <tr>
                 <th scope="row">{{loop.index}}</th>
                 <td>{{center.center_name}}</td>
@@ -63,10 +63,22 @@
                 
               </tr>
               {% endfor %}
+              
             
             
           </tbody>
       </table>
+        {% for page_num in centers.iter_pages(left_edge=1,right_edge=1,left_current=1,right_current=2) %}
+          {% if page_num %}
+            {% if centers.page == page_num %}
+              <a class="btn btn-info mb-4" href="{{url_for('book_slot',pincode=411007,page=page_num)}}">{{page_num}}</a>
+            {% else %}
+              <a class="btn btn-outline-info mb-4" href="{{url_for('book_slot',pincode=411007,page=page_num)}}">{{page_num}}</a>
+            {% endif %}
+          {% else %}
+            ...
+          {% endif %}
+        {% endfor %}
       {% endif %}
     </div>
 

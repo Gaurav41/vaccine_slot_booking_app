@@ -89,6 +89,7 @@
 
         </div>
         <div>
+          
             {% if request.args.get('start_date') %}
               {% set start_date=request.args.get('start_date') %}
               {% set end_date=request.args.get('end_date') %}
@@ -110,7 +111,7 @@
                 {% endif %} 
 
         </div>
-          {% if data|length ==0 %}
+          {% if not data %}
           <div class="alert alert-warning" role="alert">
             No Appointments... 
           </div>
@@ -127,6 +128,8 @@
               <th scope="col">Mobile No</th>
               <th scope="col">appointment_date
                 {% if request.args.get('order') and request.args.get('sort_by')=='appointment_date' %}
+                {% set sort_by=request.args.get('sort_by') %}
+                {% set order=request.args.get('order') %}
                     {% if request.args.get('order')=='asc' %}
                       <a href="{{ url_for('center_dashboard',show=show_data,sort_by='appointment_date',order='desc') }}" >
                         <img class="sort-icon" src="{{ url_for('static',filename='images/d_arrow.png') }}" alt="">
@@ -164,11 +167,11 @@
             </tr>
           </thead>
           <tbody>
-            {% for d in data %}
+            {% for d in data.items %}
               <tr>
                 <th scope="row">{{loop.index}}</th>
                 <td>{{d.booking_id}}</td>
-                <td>{{d.user_id}}</td>
+                <td>{{d.id}}</td>
                 <td>{{d.aadhar_no}}</td>
                 <td>{{d.first_name}}</td>
                 <td>{{d.mobile_no}}</td>
@@ -177,12 +180,28 @@
                 <td>{{d.status}}</td>
                 <td>
                   {% if not d.status == "Done" %}
-                  <a href="/shot_done/{{d.user_id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>
+                  <a href="/shot_done/{{d.id}}" class="btn btn-dark btn-sm shot_done_btn">Mark Done</a>
                   {% endif  %}     
               </tr>
               {% endfor %}           
           </tbody>
       </table>
+
+      {% set sort_by=request.args.get('sort_by',None) %}
+      {% set order=request.args.get('order',None) %}
+      {% set start_date=request.args.get('start_date',None) %}
+      {% set end_date=request.args.get('end_date',None) %}
+        {% for page_num in data.iter_pages(left_edge=1,right_edge=1,left_current=1,right_current=2) %}
+            {% if page_num %}
+              {% if data.page == page_num %}
+                <a class="btn btn-info mb-4" href="{{url_for('center_dashboard',show=show_data,sort_by=sort_by,page=page_num)}}">{{page_num}}</a>
+              {% else %}
+                <a class="btn btn-outline-info mb-4" href="{{url_for('center_dashboard',show=show_data,sort_by=sort_by,order=order,start_date=start_date,end_date=end_date,page=page_num)}}">{{page_num}}</a>
+              {% endif %}
+            {% else %}
+              ...
+            {% endif %}
+        {% endfor %}
       {% endif %}
     </div>
 </div>

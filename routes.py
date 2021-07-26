@@ -1,6 +1,7 @@
 from flask import request,redirect,render_template,url_for,session,jsonify,json,flash
 from flask_sqlalchemy import model
 import datetime
+import traceback
 from app import app
 from flask_login import login_required,current_user
 from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination,user_and_appo_data_sroted
@@ -87,7 +88,7 @@ def user_home():
         # flash(msg,"danger")
         return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,user_vaccination_data=user_vaccination_data)
     except :
-        flash("Some error occured, Try again later...","danger")
+        flash("Some error occured while loading user home, Try again later...","danger")
         return redirect(url_for('login'))
 
         
@@ -125,7 +126,8 @@ def center_dashboard():
             sort_by = request.args.get("sort_by")
             start_date = request.args.get("start_date")
             end_date = request.args.get("end_date")
-            user_appo_data=user_and_appo_data_sroted(current_user.center_id,show_only=show_only,sort_by=sort_by, order=order,start_date=start_date,end_date=end_date)
+            page=request.args.get('page',1,type=int)
+            user_appo_data= user_and_appo_data_sroted(current_user.center_id,show_only=show_only,sort_by=sort_by, order=order,start_date=start_date,end_date=end_date,page=page)
             logged_in_staff_data = get_staff_data(current_user.staff_id)
             # print("******************************************************")
             # print(logged_in_staff_data)
@@ -148,12 +150,13 @@ def center_dashboard():
 @login_required
 def book_slot(msg=None):
     try:
-        if request.method == "POST":
-            pincode = int(request.form['pincode'])
-            centers = get_aval_center_by_pincode(pincode)
+        if request.args.get('pincode'):
+            pincode = int(request.args.get('pincode'))
+            page=request.args.get('page',1,type=int)
+            centers = get_aval_center_by_pincode(pincode,page)
             session["pincode"]= pincode
             # return jsonify(centers)
-            flash("")
+            print(centers)
             return render_template("book_my_slot.html",centers=centers)
         else:
             user_vaccination_data=get_user_vaccination_data(current_user.id)
@@ -166,9 +169,11 @@ def book_slot(msg=None):
                     flash("You cannot book slot before 84 days","warning")
                     return redirect(url_for('user_home'))
             return render_template("book_my_slot.html")
-    except:
+    except Exception as e:
+        print("error")
+        print(e)
         flash("Some error occured, Try again later...","danger")
-        return render_template("book_my_slot.html")
+        return render_template("book_my_slot.html",centers=None)
  
 
 @app.route("/book_slot/<int:center_id>",methods=["GET"])
@@ -183,15 +188,11 @@ def book_my_slot(center_id):
             db.session.add(appoinment)
             db.session.commit()
             result.available_slots= int(result.available_slots)-1
-            db.session.commit()
-            pincode = session.get("pincode")
-            centers = get_aval_center_by_pincode(int(pincode))
-            # return render_template("book_my_slot.html",centers=centers,msg="Slot booked")
+            db.session.commit()            
             session["msg"]="Slot booked"
             flash("Your Slot booked successfully","success")
             return redirect(url_for('user_home'))
         else:
-            # session["msg"]="Oops....Slots full"
             flash("Oops....Slots full","danger")
             return redirect(url_for('user_home'))
         
@@ -202,7 +203,8 @@ def book_my_slot(center_id):
     #     return redirect(url_for('user_home'))
     
     except :
-        flash("Some error occured, Try again later...","danger")
+        traceback.print_exc()
+        flash("Some error occured while booking an appointment, Try again later...","danger")
         return redirect(url_for('user_home'))
 
 
@@ -252,7 +254,7 @@ def shot_done(user_id):
         return redirect(url_for("center_dashboard"))
 
 
-# from models import user_and_appo_data_sroted,models_test
+# from models import add_centers,get_the_centers
 
 @app.route("/test")
 def test():
@@ -264,7 +266,10 @@ def test():
 #    data=user_and_appo_data()
 #    print(data)
 #    return "joins"
-    pass
+    # add_centers()
+    
+    return "test"
+
 
 import werkzeug
 

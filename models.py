@@ -1,8 +1,10 @@
 import datetime
+import traceback
+
 from flask import session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from flask_bcrypt import Bcrypt 
+from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 
 
@@ -104,7 +106,9 @@ class UserVaccinationSchema(ma.Schema):
     class Meta:
         fields=("user_id","d1_status","vaccine","d1_date","d1_center_id","d1_staff_id","d2_status","d2_date","d2_center_id","d2_staff_id")
 
-
+class UserBookingsSchema(ma.Schema):
+    class Meta:
+        fields=("id","first_name","last_name","aadhar_no","birth_year","mobile_no","dose","email","booking_id","user_id","vaccine","center_id","booking_date","appointment_date","status")
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -117,6 +121,8 @@ centers_schema = CenterSchema(many=True)
 
 booking_schema = BookingsSchema()
 bookings_schema = BookingsSchema(many=True)
+
+user_bookings_schema=UserBookingsSchema(many=True)
 
 user_vaccination_schema = UserVaccinationSchema()
 users_vaccination_schema = UserVaccinationSchema(many=True)
@@ -290,10 +296,11 @@ def get_center_appo(center_id):
     return center_appo_data
 
 
-def get_aval_center_by_pincode(pincode):
-    result = Center.query.filter_by(pin_code=pincode)
-    centers = centers_schema.dump(result)
-    return centers
+def get_aval_center_by_pincode(pincode,page):
+    result = Center.query.filter_by(pin_code=pincode).paginate(per_page=5,page=page)
+    # centers = centers_schema.dump(result)
+    # return centers
+    return result
 
 def get_center(center_id):
     result = Center.query.get(center_id)
@@ -332,11 +339,70 @@ def user_and_appo_data(center_id):
 
 
 
-def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,start_date=None,end_date=None):
-    # result = db.session.query(User,Bookings).join(Bookings).all()
+# def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,start_date=None,end_date=None):
+#     # result = db.session.query(User,Bookings).join(Bookings).all()
+#     try:
+#         result = db.session.query(User,Bookings).join(Bookings)\
+#                         .filter(Bookings.center_id==center_id)
+#         if show_only :
+#             if show_only=='done' :
+#                 result=result.filter(Bookings.status=='Done')
+            
+#             if show_only=='pending' :
+#                 result=result.filter(Bookings.status=='Pending')
+        
+#         if start_date and start_date:
+#             result=result.filter(Bookings.appointment_date.between(start_date,end_date))
+#         if sort_by == "appointment_date":
+#             if order == "desc":
+#                 result=result.order_by(Bookings.appointment_date.desc())
+#             elif order == "asc":
+#                 result=result.order_by(Bookings.appointment_date)
+        
+#         elif sort_by == "status":
+#             if order == "desc":
+#                 result=result.order_by(Bookings.status.desc())
+#             elif order == "asc":
+#                 result=result.order_by(Bookings.status)
+#         else:
+#             pass
+
+        
+#     except Exception as e:
+#         print(e)
+#         return e
+#     # print("result")
+#     # print(bookings_schema.dump(result))
+#     data = []
+#     for u,b in result: 
+#         dic = {
+#         "birth_year":u.birth_year,
+#         "user_id":u.id,
+#         "mobile_no":u.mobile_no,
+#         "last_name":u.last_name,
+#         "dose":u.dose,
+#         "email":u.email,
+#         "first_name":u.first_name,
+#         "aadhar_no":u.aadhar_no,
+#         "booking_date":b.booking_date,
+#         "center_id":b.center_id,
+#         "appointment_date":b.appointment_date,
+#         "booking_id":b.booking_id,
+#         "status":b.status
+#         }
+#         data.append(dic)
+#         dic = {}
+#     return data
+
+def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,start_date=None,end_date=None,page=1):
     try:
-        result = db.session.query(User,Bookings).join(Bookings)\
-                        .filter(Bookings.center_id==center_id)
+
+        result = User.query\
+            .join(Bookings,User.id==Bookings.user_id)\
+            .add_columns(User.id,User.first_name,User.last_name,User.birth_year,User.aadhar_no,User.mobile_no,User.dose,User.email,\
+                Bookings.booking_id,Bookings.booking_date,Bookings.appointment_date,Bookings.status,Bookings.center_id)\
+            .filter(Bookings.center_id==center_id)
+            
         if show_only :
             if show_only=='done' :
                 result=result.filter(Bookings.status=='Done')
@@ -363,29 +429,13 @@ def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,s
         
     except Exception as e:
         print(e)
+        traceback.print_exc()
         return e
-    # print("result")
-    # print(bookings_schema.dump(result))
-    data = []
-    for u,b in result: 
-        dic = {
-        "birth_year":u.birth_year,
-        "user_id":u.id,
-        "mobile_no":u.mobile_no,
-        "last_name":u.last_name,
-        "dose":u.dose,
-        "email":u.email,
-        "first_name":u.first_name,
-        "aadhar_no":u.aadhar_no,
-        "booking_date":b.booking_date,
-        "center_id":b.center_id,
-        "appointment_date":b.appointment_date,
-        "booking_id":b.booking_id,
-        "status":b.status
-        }
-        data.append(dic)
-        dic = {}
-    return data
+
+    # result = user_bookings_schema.dump(result)
+    return result.paginate(page=page,per_page=5)
+
+
 
 # def models_test():
 #     result = db.session.query(User,Bookings).join(Bookings)\
@@ -413,3 +463,114 @@ def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,s
 #         data.append(dic)
 #         dic = {}
 #     return data
+
+
+def add_centers():
+
+    center1= Center(center_name="Center C13",
+            city="pune",
+            district="Pune",
+            pin_code=411007,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=120,
+            vaccine_type="covaxine",
+            type="free")
+    center2= Center(center_name="Center C14",
+            city="pune",
+            district="Pune",
+            pin_code=411007,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="free")
+
+    center3= Center(center_name="Center C15",
+            city="pune",
+            district="Pune",
+            pin_code=412207,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="paid")
+
+    db.session.add(center1)
+    db.session.add(center2)
+    db.session.add(center3)
+
+
+    center1= Center(center_name="Center C16",
+            city="pune",
+            district="Pune",
+            pin_code=411007,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=120,
+            vaccine_type="covaxine",
+            type="free")
+    center2= Center(center_name="Center C17",
+            city="pune",
+            district="Pune",
+            pin_code=411007,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="free")
+
+    center3= Center(center_name="Center C18",
+            city="pune",
+            district="Pune",
+            pin_code=412207,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="paid")
+
+    db.session.add(center1)
+    db.session.add(center2)
+    db.session.add(center3)
+    center1= Center(center_name="Center C19",
+            city="pune",
+            district="Pune",
+            pin_code=411007,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=120,
+            vaccine_type="covaxine",
+            type="free")
+    center2= Center(center_name="Center C20",
+            city="pune",
+            district="Pune",
+            pin_code=411007,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="free")
+
+    center3= Center(center_name="Center C21",
+            city="pune",
+            district="Pune",
+            pin_code=412207,
+            capacity=180,
+            allocated_slots=180,
+            available_slots=180,
+            vaccine_type="covishield",
+            type="paid")
+
+    db.session.add(center1)
+    db.session.add(center2)
+    db.session.add(center3)
+    db.session.commit()
+    print("center added")
+
+
+
+# def get_the_centers(pincode):
+#     result = Center.query.filter_by(pin_code=pincode).paginate(per_page=5)
+#     # centers = centers_schema.dump(result)
+#     return result
