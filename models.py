@@ -256,9 +256,8 @@ def db_seed():
 def get_user_data(user_id):
     result = User.query.get(user_id)
     user = user_schema.dump(result)
-    print("***********************************************************************")
+    user['full_name']=result.first_name +" "+ result.last_name
     print(result)
-    print("***********************************************************************")
     print(user)
     return user
 
@@ -272,8 +271,16 @@ def get_users_data(user_ids):
 
 def get_user_vaccination_data(user_id):
     result = UserVaccination.query.filter_by(user_id=user_id).first()
-    print(result)
-    return user_vaccination_schema.dump(result)
+   
+    data = user_vaccination_schema.dump(result)
+    if result and result.d1_date:
+        data['d1_date']=result.d1_date.strftime("%d %B %Y")
+        data['day_diff'] = (datetime.datetime.now()-result.d1_date).days
+        # print( data['day_diff'])
+    if result and result.d2_date:
+        data['d2_date']=result.d2_date.strftime("%d %B %Y")
+    return data 
+
 
 
 def get_staff_data(staff_id):
@@ -286,10 +293,14 @@ def get_staff_data(staff_id):
 
 def get_user_appo(user_id):
     result = Bookings.query.filter_by(user_id=user_id).first()
-    # appo_data = booking_schema.dump(result)
+    appo_data = booking_schema.dump(result)
+    if result and result.appointment_date:
+        appo_data['appointment_date'] = result.appointment_date.strftime("%d %B %Y")
+    if result and result.booking_date:
+        appo_data['booking_date'] = result.booking_date.strftime("%d %B %Y")
     # print("appo_data")
     # print(appo_data)
-    return result
+    return appo_data
 
 
 def get_center_appo(center_id):

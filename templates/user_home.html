@@ -9,8 +9,8 @@
       <h3 class="horizontal-space">Beneficiary Details</h3>
         <div class="col-md-8">
             <label for="name" class="form-label">Name</label>
-            {% set name = user_profile_data.first_name ~'-'~ user_profile_data.last_name%}
-            <input type="text" class="form-control" id="name" name="name" value={{name}} disabled>
+            {# set name = user_profile_data.first_name ~'-'~ user_profile_data.last_name #}
+            <input type="text" class="form-control" id="name" name="name" value="{{user_profile_data['full_name']}}" disabled>
         </div>
         <div class="col-md-4">
           <label for="name" class="form-label">Beneficiary Id</label>
@@ -63,12 +63,12 @@
         
         <div class="col-md-3">
             <label for="dose1" class="form-label">Dose 1 date</label>
-            <input type="text" class="form-control" id="dose1" value="{{dose1[0:10]}}" disabled>
+            <input type="text" class="form-control" id="dose1" value="{{dose1}}" disabled>
         </div>
         {% if does2 %}
         <div class="col-md-3">
             <label for="dose2" class="form-label">Dose 2 date</label>
-            <input type="text" class="form-control" id="dose2" value="{{dose2[0:10]}}" disabled>
+            <input type="text" class="form-control" id="dose2" value="{{dose2}}" disabled>
         </div> 
         {% endif %}
       </form>
@@ -91,7 +91,7 @@
 
 <div class="container appointment-container">
     <h3 class="center-text heading">Appointment Details</h3>
-    {% if not user_appo_data %}
+    {% if not user_appo_data|length > 0 %}
     <div class="alert alert-warning" role="alert">
         No Appointment Scheduled... 
       </div>
@@ -104,8 +104,8 @@
         </div>
         <div class="col-md-3">
             <label for="appo_date" class="form-label">Appointment Schedule date</label>
-            {% set date=user_appo_data.appointment_date.strftime('%d %B %Y') %}
-            <input type="text" class="form-control" id="appo_date" value="{{date}}" disabled>
+            {# set date=user_appo_data.appointment_date.strftime('%d %B %Y') #}
+            <input type="text" class="form-control" id="appo_date" value="{{user_appo_data.appointment_date}}" disabled>
         </div>
         <div class="col-md-6">
             <label for="center_name" class="form-label">Center name</label>

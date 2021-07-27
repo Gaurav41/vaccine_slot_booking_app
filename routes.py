@@ -70,11 +70,11 @@ def user_home():
         book_btn=None
         if user_vaccination_data:
             d1_date = user_vaccination_data['d1_date']
-            d1_date = datetime.datetime.fromisoformat(d1_date)
-            day_diff = (datetime.datetime.now()-d1_date).days
-            if (day_diff) < 84 :
+            # d1_date = datetime.datetime.fromisoformat(d1_date)
+            # day_diff = (datetime.datetime.now()-d1_date).days
+            if (user_vaccination_data['day_diff']) < 84 :
                 book_btn = "disabled"
-                next_does_after= 84-day_diff
+                next_does_after= 84-user_vaccination_data['day_diff']
                 user_vaccination_data['next_does_after']=next_does_after
             
         if user_appo_data:
@@ -83,7 +83,7 @@ def user_home():
         user_profile_data['book_btn']=book_btn
 
         if user_appo_data:
-            center_data = get_center(user_appo_data.center_id)
+            center_data = get_center(user_appo_data['center_id'])
 
         msg = session.get("msg")
         # session["msg"]=None
