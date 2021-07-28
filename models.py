@@ -1,4 +1,5 @@
 import datetime
+import logging
 import traceback
 
 from flask import session
@@ -7,8 +8,9 @@ from sqlalchemy import cast, Date
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
+from error_logging import logger,logging
 
-
+logger=logging.getLogger(__name__)
 db = SQLAlchemy()
 ma = Marshmallow()
 bcrypt = Bcrypt()
@@ -254,36 +256,52 @@ def db_seed():
 
 
 def get_user_data(user_id):
-    result = User.query.get(user_id)
-    user = user_schema.dump(result)
-    user['full_name']=result.first_name +" "+ result.last_name
-    print(result)
-    print(user)
-    return user
+    
+    try:
+        result = User.query.get(user_id)
+        user = user_schema.dump(result)
+        user['full_name']=result.first_name +" "+ result.last_name
+        print(result)
+        print(user)
+        return user
+    except Exception as e:
+        traceback.print_exc()
+        logger.exception(e)
+       
 
 def get_users_data(user_ids):
-    result = db.session.query(User).filter(User.id.in_(user_ids)).all()
-    # result = User.query.get(user_id)
-    users = users_schema.dump(result)
-    # print("user")
-    # print(user)
-    return users
+    try:
+        result = db.session.query(User).filter(User.id.in_(user_ids)).all()
+        # result = User.query.get(user_id)
+        users = users_schema.dump(result)
+        # print("user")
+        # print(user)
+        return users
+    except Exception as e:
+        traceback.print_exc()
+        logger.exception(e)
 
 def get_user_vaccination_data(user_id):
-    result = UserVaccination.query.filter_by(user_id=user_id).first()
-   
-    data = user_vaccination_schema.dump(result)
-    if result and result.d1_date:
-        data['d1_date']=result.d1_date.strftime("%d %B %Y")
-        data['day_diff'] = (datetime.datetime.now()-result.d1_date).days
-        # print( data['day_diff'])
-    if result and result.d2_date:
-        data['d2_date']=result.d2_date.strftime("%d %B %Y")
-    return data 
+
+    try:
+        result = UserVaccination.query.filter_by(user_id=user_id).first()
+    
+        data = user_vaccination_schema.dump(result)
+        if result and result.d1_date:
+            data['d1_date']=result.d1_date.strftime("%d %B %Y")
+            data['day_diff'] = (datetime.datetime.now()-result.d1_date).days
+            # print( data['day_diff'])
+        if result and result.d2_date:
+            data['d2_date']=result.d2_date.strftime("%d %B %Y")
+        return data 
+    except Exception as e:
+        traceback.print_exc()
+        logger.exception(e)
 
 
 
 def get_staff_data(staff_id):
+
     result = Staff.query.get(staff_id)
     staff = staff_schema.dump(result)
     # print("user")
@@ -292,6 +310,7 @@ def get_staff_data(staff_id):
 
 
 def get_user_appo(user_id):
+
     result = Bookings.query.filter_by(user_id=user_id).first()
     appo_data = booking_schema.dump(result)
     if result and result.appointment_date:
@@ -328,8 +347,8 @@ def user_and_appo_data(center_id):
     try:
         result = db.session.query(User,Bookings).join(Bookings).filter(Bookings.center_id==center_id)
     except Exception as e:
-        print(e)
-        return e
+        traceback.print_exc()
+        logger.exception(e)
     # print("result")
     # print(bookings_schema.dump(result))
     data = []
@@ -443,9 +462,8 @@ def user_and_appo_data_sroted(center_id,show_only=None,sort_by=None,order=None,s
 
         
     except Exception as e:
-        print(e)
         traceback.print_exc()
-        return e
+        logger.exception(e)
 
     # result = user_bookings_schema.dump(result)
     return result.paginate(page=page,per_page=5)
