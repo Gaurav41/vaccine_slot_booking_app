@@ -9,7 +9,7 @@ ma.init_app(app)
 
 import auth
 import routes
-
+import error_handler
 
 if __name__ == "__main__":
     app.run(debug=True)

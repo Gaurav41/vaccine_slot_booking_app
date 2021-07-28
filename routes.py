@@ -1,12 +1,16 @@
-from flask import request,redirect,render_template,url_for,session,jsonify,json,flash
+from flask import request,redirect,render_template,url_for,session,jsonify,json,flash,abort
 from flask_sqlalchemy import model
 import datetime
 import traceback
+import logging
 from app import app
 from flask_login import login_required,current_user
 from models import User,Center,Bookings,get_user_vaccination_data,user_and_appo_data,db_create,UserVaccination,user_and_appo_data_sroted
 from models import db,bcrypt,get_center_appo,get_user_data,get_user_appo,get_staff_data,get_center,get_aval_center_by_pincode
 from auth import is_authorized_staff
+from error_logging import logger
+
+logger=logging.getLogger(__name__)
 
 @app.route("/signup",methods=['GET','POST'])
 def signup():
@@ -43,9 +47,10 @@ def signup():
             print("User added")
             flash("Signup successful...please login","success")
             return redirect(url_for("login"))
-        except :
+        except Exception as e:
+            logger.exception(e)
             flash("Something went wrong...try again","danger")
-            render_template('signup.html')
+            return render_template('signup.html')
 
     else:    
         return render_template('signup.html')
@@ -89,8 +94,9 @@ def user_home():
         # session["msg"]=None
         # flash(msg,"danger")
         return render_template('user_home.html',user_profile_data=user_profile_data,user_appo_data=user_appo_data,center_data=center_data,user_vaccination_data=user_vaccination_data)
-    except :
+    except Exception as e:
         traceback.print_exc()
+        logger.exception(e)
         flash("Some error occured while loading user home, Try again later...","danger")
         return redirect(url_for('login'))
 
@@ -105,8 +111,9 @@ def staff_home():
         # print("staff_profile_data")
         # print(staff_profile_data)
         return staff_profile_data
-    except:
-        pass
+    except Exception as e:
+        logger.exception(e)
+        
     # return "Hi i am staff "
     # center_data={}
     # user_appo_data=get_user_appo(current_user.staff_id)
@@ -142,12 +149,14 @@ def center_dashboard():
                 flash(errmsg,"danger")
             return render_template('center_dashboard.html', center=center_data,data=user_appo_data,logged_in_staff_data=logged_in_staff_data)
         except Exception as e:
-            print(e)
+            traceback.print_exc()
+            logger.exception(e)
             flash("Some error occured, Try again later...","danger")
             return render_template('staff_login.html')
-    else:
+    else :
         flash("You are not a authorised staff to access this page","warning")
-        return redirect(url_for("staff_login")),403
+        abort(403)
+        # return redirect(url_for("staff_login")),403
 
 @app.route("/book_slot",methods=["GET","POST"])
 @login_required
@@ -173,8 +182,8 @@ def book_slot(msg=None):
                     return redirect(url_for('user_home'))
             return render_template("book_my_slot.html")
     except Exception as e:
-        print("error")
-        print(e)
+        logger.exception(e)
+        traceback.print_exc()
         flash("Some error occured, Try again later...","danger")
         return render_template("book_my_slot.html",centers=None)
  
@@ -205,7 +214,8 @@ def book_my_slot(center_id):
     #     flash("Some error occured, Try again later...","danger")
     #     return redirect(url_for('user_home'))
     
-    except :
+    except Exception as e:
+        logger.exception(e)
         traceback.print_exc()
         flash("Some error occured while booking an appointment, Try again later...","danger")
         return redirect(url_for('user_home'))
@@ -250,7 +260,8 @@ def shot_done(user_id):
         return redirect(url_for("center_dashboard"))
         
     except Exception as e:
-        print(e)
+        logger.exception(e)
+        traceback.print_exc()
         errmsg = f"Something went wrong while updating vaccination shot done of user {result.first_name}"
         # session["errmsg"]=errmsg
         flash(errmsg)
@@ -274,39 +285,3 @@ def test():
     return "test"
 
 
-import werkzeug
-
-@app.errorhandler(404)
-def not_found(e):
-    print(e)
-    return render_template("404.html"),404
-
-@app.errorhandler(401)
-def unauthorised(e):
-    print(e)
-    return render_template("login.html"),401
-
-@app.errorhandler(403)
-def forbidden(e):
-    print(e)
-    return render_template("login.html"),403
-
-@app.errorhandler(werkzeug.exceptions.BadRequest)
-def handle_bad_request(e):
-    return 'bad request!', 400
-
-from werkzeug.exceptions import HTTPException, abort
-
-@app.errorhandler(HTTPException)
-def handle_exception(e):
-    """Return JSON instead of HTML for HTTP errors."""
-    # start with the correct headers and status code from the error
-    response = e.get_response()
-    # replace the body with JSON
-    response.data = json.dumps({
-        "code": e.code,
-        "name": e.name,
-        "description": e.description,
-    })
-    response.content_type = "application/json"
-    return response
