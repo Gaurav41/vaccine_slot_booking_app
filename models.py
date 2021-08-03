@@ -313,6 +313,8 @@ def get_user_appo(user_id):
 
     result = Bookings.query.filter_by(user_id=user_id).first()
     appo_data = booking_schema.dump(result)
+    if result and result.status=="Done":
+        return {}
     if result and result.appointment_date:
         appo_data['appointment_date'] = result.appointment_date.strftime("%d %B %Y")
     if result and result.booking_date:
