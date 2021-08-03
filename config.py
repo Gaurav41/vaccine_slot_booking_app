@@ -9,6 +9,7 @@ class Config(object):
     
 
 class ProductionConfig(Config):
+    ENV='production'
     DEBUG = False
     SECRET_KEY = os.urandom(12)
     SQLALCHEMY_TRACK_MODIFICATIONS = False

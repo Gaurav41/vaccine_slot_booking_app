@@ -87,7 +87,7 @@ def staff_login():
 def logout():
     
     logout_user()
-    print("user logged out")
+    flash("You'r logged out")
     return redirect(url_for("login"))
 
 

@@ -46,7 +46,7 @@ def signup():
             db.session.commit()
             print("User added")
             flash("Signup successful...please login","success")
-            return redirect(url_for("login"))
+            return redirect(url_for("login")),201 
         except Exception as e:
             logger.exception(e)
             flash("Something went wrong...try again","danger")
